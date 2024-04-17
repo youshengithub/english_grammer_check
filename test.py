@@ -1,5 +1,5 @@
 import re,tqdm,sys
-import subprocess
+import subprocess,multiprocessing 
 
 def analyze_sentence(sentence):
     # 创建一个新的子进程来运行 link-parser
@@ -50,18 +50,28 @@ def process_latex_file(file_path):
     sentences = re.findall(r'([A-Z][^\\}\{.]*\.\s)', content)
 
     return sentences
-
-def handle_file(file_name):
+def load_config(file_name):
     
-    # 打开文件
-    with open('ignore.txt', 'r') as f:
+    with open(file_name, 'r') as f:
         # 读取所有行，每一行作为列表的一个元素
         lines = f.readlines()
-    line_list=[]
+    line_set=set()
     for line in lines:
-        line_list.append(line.strip())  # 使用 strip() 方法移除每行末尾的换行符
+        line_set.add(line.strip())  # 使用 strip() 方法移除每行末尾的换行符
         print(line.strip())
-    print("所有ignore已经被载入")
+    print("所有",file_name,"已经被载入")
+    return line_set
+def write_config(success_list,file_name):
+    succ=""
+    for i in success_list:
+        succ+=i+"\n"
+    with open(file_name, 'w') as f:
+        f.write(succ)
+def handle_file(file_name):
+    # 打开文件
+    line_list=load_config("ignore.txt")
+    success_list=load_config("success.txt")
+    fail_list=load_config("fail.txt")
     # 测试
     sentences = process_latex_file(file_name)
     wrong_number=0
@@ -69,10 +79,13 @@ def handle_file(file_name):
     for sentence in tqdm.tqdm(sentences):
         sentence=sentence[:-1]
         ignore=False
-        for ig in line_list:
-            if(ig==sentence):
-                ignore=True
-                break
+        if(sentence in line_list or sentence in success_list):
+            ignore=True
+            continue
+        if(sentence in fail_list):
+            ignore=True
+            wrong_number+=1
+            continue
         if(ignore==True):
             tqdm.tqdm.write(f'Ignore: {sentence}')
             continue
@@ -80,12 +93,21 @@ def handle_file(file_name):
             wrong_number+=1
             tqdm.tqdm.write(f'Error in sentence: {sentence}')
             ans+=f'Error in sentence: {sentence}\n'
-
+            fail_list.add(sentence)
+        else: #加入到success中去
+            success_list.add(sentence)
+            
     print("识别的句子总数:",len(sentences),"错误率:",wrong_number/len(sentences))
 
-    with open("Ana_"+filename+".txt", 'w') as f:
-        # 写入字符串
+    with open("Ana_"+file_name+".txt", 'w') as f:
         f.write(ans)
-
+    write_config(list(success_list),"success.txt")
+    write_config(list(fail_list),"fail.txt")
+processes = []
 for i in sys.argv[1:]:
     handle_file(i)
+    # new_process = multiprocessing.Process(target=handle_file, args=(i,))
+    # new_process.start()
+    # processes.append(new_process)
+for process in processes:
+    process.join()

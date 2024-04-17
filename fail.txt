@@ -1,0 +1,22 @@
+To improve the search efficiency and reduce the cost of query, we extend the GA-based search framework with AE-specific operators including block-level and pixel-level crossovers, discrete perturbation mutation and direction-driven reproduction.
+We identify the requirements of attacking defensive DNNs in black-box mode, and formulate the generation of AEs into a multi-objective optimization problem.
+DeepFool  approaches the decision boundary by calculating the closest distance between the original input and the adversarial example, and performs an iterative attack with linear estimation to deal with the inherent non-linearity problem in high dimensions.
+The rest of this paper is organized as follows.
+One popular method is to generate the surrogate network of the original DNN , and then implement effective AE attacks according to the vulnerability of surrogate model.
+With the flexibility of searching framework, evolutionary algorithms can help to address the design problem related machine learning applications.
+Given a truth label Theta and Theta, the AE can be further recognized as a targeted AE if Theta, otherwise it is an un-targeted AE.
+Furthermore, PSO-based jumping process is further devised if the searching is predicted to be stuck at local optimum.
+However, this approach suffers from the mismatch between the surrogate model and original model, as well as high computation cost required by surrogate model training.
+To protect the privacy of DNN models, MLaaS are generally constructed to provide users only with query interface and return them with the prediction results  regarding to inputs.
+Due to limit of finance, lots of users resort to Machine-Learning-as-a-Service  to implement their DNN applications.
+JSMA is proposed to apply heuristic methods to search perturbation boundary of misclassification, and leverage the output gradient of the network layer to calculate the saliency map.
+Consequently, how to breakthrough defensive DNNs becomes an emerging and non-trivial challenge for the design of AE attacks.
+In addition, predication-based adaptation of reproduction-related parameters is implemented to speed up the search convergence, and PSO-based jumping process is further devised to avoid the stuck in local optimum.
+During the GA-based search framework, AE-specific operators including block-level crossover, pixel-level shuffle crossover, discrete perturbation mutation and direction-driven reproduction are designed to improve the efficiency of search and thus reduce the query cost to victim models.
+The perturbation is limited the human perception constraint as Theta, where Theta is the perturbation bound of Theta-norm.
+To improve the efficiency of search and query, AE-specific operators including block-level and pixel-level crossovers, discrete perturbation mutation and direction-driven reproduction are designed within the GA-based search framework.
+GA-based gradient-free optimization methods  are proposed have been proposed to synthesize adversarial examples.
+Recent, query-based  or score-based  methods are developed to directly estimate gradient of confidence scores.
+For instance, well-crafted noise on the sample images of  safety-critical domain  can trigger the failure of deployed DNNs, thus leading to unpredictable finance loss, even serious damage to the environment.
+Considering the supervised-learning classification, a DNN can be represented by a function Theta: Theta, where Theta and Theta are the input set and output set respectively.
+Inspired by the merits of evolutionary algorithms, this paper proposes GA-based Query-efficient Attack  to address the perturbation optimization problem in image domain.

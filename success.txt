@@ -1,0 +1,41 @@
+To make the attack more practical, we exploit query-based black-box method to generate image AEs.
+This section introduces the preliminaries.
+We propose a GA-based query-efficient attack method to generate image AEs to breakthrough victim models with defensive mechanisms.
+Deep Neural Networks  have been immensely deployed into artificial intelligence-driven applications , ranging from identification recognition to environment surveillance and to smart robot applications.
+As a prominent branch of AE attacks, a great number of white-box attacks have been developed .
+However, these methods are query-intensive and computation-expensive, thus limiting their applications in real-world applications.
+In Section V, extensive experiments are conducted to evaluate the performance of proposed method.
+Particle Swarm Optimization  can obtain optimized solutions in a large stochastic searching space by imitating the food-finding process of a swarm of birds .
+Benchmark-based experiments on CIFAR-10, CIFAR-100 and ImageNet-1K are conducted to evaluate the efficiency of our method in both defensive and non-defensive scenarios.
+Comparing with white-box attacks, they are more practical since they are assumed to be zero-knowledge of model architecture, parameters and the training data.
+As one popular method, Genetic Algorithm  is popular to search optimal solutions for constrained optimization problems.
+Incorporating with gradient information, decision boundary-based methods are also developed, which can push the data to the decision boundary to realize misclassification of images.
+Along with the fast development of AE attacks, the robustness of DNNs has received increasing concerns.
+With the purpose of alleviating the vulnerability to AE attacks, certain mechanisms are emerging to improve the defensive performance of DNNs including AE detection and recognition , adversarial training of DNNs  and image compression  in the image domain.
+DNNs are designed to learn the high-level features using layer-by-layer data processing in high-dimension space, similar to the information flow of neurons in living organisms.
+Although white-box attacks have been evaluated successful, they cannot achieve high attack performance in practical applications where the information of victim models and training data are definitely not disclosed to the adversarial attackers.
+In Section IV, the detailed design of query-efficient GA attack is given.
+Well-designed evolutionary algorithms have been used for image generation , image classification   and neural architecture search .
+As the primary group of machine learnings, Deep neural networks  are immense popular in regression tasks and classification tasks of emerging intelligent systems, especially for image processing systems.
+Different to existing works, in this paper we are interested in the generation of AEs for DNNs with defensive mechanisms.
+However, the research to generate AEs using evolutionary algorithms is seriously overlooked for defensive DNNs.
+Then, this paper proposes a query-efficient AE attack based on Genetic Algorithm  and Particle Swarm Optimization  to address the perturbation optimization problem.
+Section presents the threat model and formulate the design to a multi-objective optimization problem.
+Theta.
+In addition, most of existing AE attacks including both white-box and black-box methods ignore to generate AEs for defensive DNNs in the scenarios of MLaaS.
+Black-box AE attacks are also seriously threatened to DNNs .
+Section II describes preliminaries work.
+Following that, BIM   is further designed to generate better AEs by iteratively using FGSM.
+The adversaries have the right of accessing to DNNs, and mostly exploit back-propagation methods to obtain the gradient information of DNN models, thus generating white-box AEs to threaten the victim models.
+However, due to the weak interpretability, DNNs has the inherent vulnerability to Adversarial Example  attacks  .
+Finally, Section VI concludes the paper with future work.
+The DNN model Theta is trained based on the training data set with Theta labeled inputs Theta, where Theta is an input instance and Theta is its ground-truth class label.
+To improve the convergence of GAQA, we choose to upgrade the reproduction-related parameters according to the predication of searching overhead.
+As a supplementary work, this paper approaches to implement black-box AE attacks on defensive DNN models deployed in servers like MLaaS.
+To implement white-box attacks, the adversarial attackers are assumed to know the full knowledge of model architecture, model parameters and training data of the victim DNN models.
+Considering the linear characteristics of DNNs, FGSM  is proposed to generate AEs using on-step gradient updation on image pixels.
+For image classification tasks, well-designed AEs is capable of fooling DNN models with wrong predictions while being imperceptible to human naked eyes.
+Adversarial example  attacks are typically launched by maliciously crafted inputs, and aim to let DNN models to misbehave.
+Compared with current black-box methods, GAQA can effectively generate optimal perturbations on images and significantly decrease the number of queries to the victim model.
+Given the benign input Theta with the class label as Theta, the perturbed Theta is defined as an AE if misclassified to the label Theta.
+Based on the prediction of searching iterations, we introduce predication-based adaptation for reproduction-related parameters to speed up the search convergence, and design PSO-based jump to avoid the search stuck at local optimum.
