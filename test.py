@@ -1,6 +1,8 @@
-import re,tqdm,sys,pickle,os
+import re,sys,pickle,os
 import subprocess,multiprocessing 
-from concurrent.futures import ThreadPoolExecutor
+import concurrent.futures
+from tqdm import tqdm
+
 def analyze_sentence(sentence):
     # 创建一个新的子进程来运行 link-parser
     process = subprocess.Popen(['link-parser'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
@@ -84,7 +86,7 @@ def handle_file(file_name):
     wrong_number=0
     ans=""
     needs_calc=[]
-    for sentence in tqdm.tqdm(sentences):
+    for sentence in sentences:
         sentence=sentence[:-1]
         ignore=False
         fails=False
@@ -98,8 +100,21 @@ def handle_file(file_name):
             continue
         needs_calc.append(sentence)
 
-    with ThreadPoolExecutor() as executor:
-        result_list = list(executor.map(analyze_sentence, needs_calc))
+    # with ThreadPoolExecutor() as executor:
+    #     result_list = list(executor.map(analyze_sentence, needs_calc))
+    # 创建一个进度条，总任务数等于列表长度
+    with concurrent.futures.ThreadPoolExecutor() as executor, tqdm(total=len(needs_calc)) as pbar:
+        future_to_i = {executor.submit(analyze_sentence, i): i for i in needs_calc}
+        
+        result_list = []
+        for future in concurrent.futures.as_completed(future_to_i):
+            i = future_to_i[future]
+            result = future.result()
+            result_list.append(result)
+            # 每当一个未来（future）完成，更新进度条
+            pbar.update(1)
+        
+        
     for sentence,flag,info in result_list:
         if(flag==True):
             success_list.add(sentence)
