@@ -1,0 +1,1030 @@
+% !TeX spellcheck = en_US
+\documentclass[lettersize,journal]{IEEEtran}
+\usepackage{subfigure} 
+\usepackage{amsmath,amsfonts}
+%\usepackage[noend]{algpseudocode}
+\usepackage{algorithmic}
+\usepackage{algorithm}  
+\usepackage{array}
+\usepackage[caption=false,font=normalsize,labelfont=sf,textfont=sf]{subfig}
+\usepackage{textcomp}
+\usepackage{stfloats}
+\usepackage{url}
+\usepackage{verbatim}
+\usepackage{graphicx}
+\usepackage[thmmarks,amsmath]{ntheorem}
+
+\usepackage{cite}
+\usepackage{color}
+
+
+\usepackage{booktabs}
+\usepackage{threeparttable}
+\usepackage{multicol}
+\usepackage{multirow}
+\usepackage{verbatim}
+\hyphenation{op-tical net-works semi-conduc-tor IEEE-Xplore}
+\usepackage{balance}
+
+
+\begin{document}
+\bibliographystyle{unsrt}
+
+\title{
+Query-Efficient Generation of Adversarial Examples for Defensive DNNs via Multi-Objective Optimization
+}
+\author{Wei Jiang, Shen You, Jinyu Zhan, Xupeng Wang, Hong Lei, Deepak Adhikari}
+\maketitle
+
+\begin{abstract}
+Due to the inherent vulnerability of Deep Neural Networks (DNNs), Adversarial Example (AE) attack has become a serious threat to lead intelligent systems misbehave, e.g., the failure of image classification system. Different to existing works, in this paper we are interested in the generation of AEs for DNNs with defensive mechanisms. To make the attack more practical, we exploit query-based black-box method to generate image AEs. The generation of AEs is inherently a constrained optimization problem, and this paper first formulates three objectives regarding to defensive DNNs, i.e, attack effectiveness, attack evasiveness and attack coverage. Then, this paper proposes a query-efficient AE attack based on Genetic Algorithm (GA) and Particle Swarm Optimization (PSO) to address the perturbation optimization problem. To improve the efficiency of search and query, AE-specific operators including block-level and pixel-level crossovers, discrete perturbation mutation and direction-driven reproduction are designed within the GA-based search framework. In addition, predication-based adaptation of reproduction-related parameters is implemented to speed up the search convergence, and PSO-based jumping process is further devised to avoid the stuck in local optimum. Benchmark-based experiments evaluated the efficiency of our method, which can achieve an attack success rate of 100\%  with averagely 52.95\% reduced queries comparing with existing black-box attacks on non-defensive models. For defensive DNN models, our method can obtain top attack performance with an average reduction of 60.8\% in query times.
+
+
+
+\end{abstract} 
+
+\begin{IEEEkeywords}
+Defensive Deep Neural Networks, Black-Box Adversarial Example, Multi-Objective Optimization, Genetic Algorithm
+\end{IEEEkeywords}
+
+
+\section{INTRODUCTION}
+\IEEEPARstart{O}{wing} to their significant performance, Deep Neural Networks (DNNs) have been immensely deployed into artificial intelligence-driven applications \cite{huang2017densely}\cite{10.1145/3470493}, ranging from identification recognition to environment surveillance and to smart robot applications. However, due to the weak interpretability, DNNs has the inherent vulnerability to Adversarial Example (AE) attacks  \cite{DBLP:journals/tec/ChenWXYPCD21}. For instance, well-crafted noise on the sample images of  safety-critical domain \cite{DBLP:conf/cvpr/KongGLL20} can trigger the failure of deployed DNNs, thus leading to unpredictable finance loss, even serious damage to the environment.  Along with the fast development of AE attacks, the robustness of DNNs has received increasing concerns. With the purpose of alleviating the vulnerability to AE attacks, certain mechanisms are emerging to improve the defensive performance of DNNs including AE detection and recognition \cite{2019Detecting}, adversarial training of DNNs \cite{2017Towards} and image compression \cite{2020ComDefend} in the image domain. Consequently, how to breakthrough defensive DNNs becomes an emerging and non-trivial challenge for the design of AE attacks.
+
+As a prominent branch of AE attacks, a great number of white-box attacks have been developed \cite{rony2019decoupling}\cite{selvaraju2017grad}. To implement white-box attacks, the adversarial attackers are assumed to know the full knowledge of model architecture, model parameters and training data of the victim DNN models. The adversaries have the right of accessing to DNNs, and mostly exploit back-propagation methods to obtain the gradient information of DNN models, thus generating white-box AEs to threaten the victim models. Considering the linear characteristics of DNNs, FGSM \cite{DBLP:journals/corr/GoodfellowSS14} is proposed to generate AEs using on-step gradient updation on image pixels. Following that, BIM \cite{DBLP:journals/mlc/RenHY21} \cite{9239350} is further designed to generate better AEs by iteratively using FGSM. Incorporating with gradient information, decision boundary-based methods are also developed, which can push the data to the decision boundary to realize misclassification of images. JSMA is proposed to apply heuristic methods to search perturbation boundary of misclassification, and leverage the output gradient of the network layer to calculate the saliency map. DeepFool \cite{moosavi2016deepfool} approaches the decision boundary by calculating the closest distance between the original input and the adversarial example, and performs an iterative attack with linear estimation to deal with the inherent non-linearity problem in high dimensions. Although white-box attacks have been evaluated successful, they cannot achieve high attack performance in practical applications where the information of victim models and training data are definitely not disclosed to the adversarial attackers. 
+
+Black-box AE attacks are also seriously threatened to DNNs \cite{ilyas2018prior}. Comparing with white-box attacks, they are more practical since they are assumed to be zero-knowledge of model architecture, parameters and the training data. Due to limit of finance, lots of users resort to Machine-Learning-as-a-Service (MLaaS) to implement their DNN applications. To protect the privacy of DNN models, MLaaS are generally constructed to provide users only with query interface and return them with the prediction results (e.g., confidence value of classes) regarding to inputs. One popular method is to generate the surrogate network of the original DNN \cite{surrogate}, and then implement effective AE attacks according to the vulnerability of surrogate model. However, this approach suffers from the mismatch between the surrogate model and original model, as well as high computation cost required by surrogate model training. Recent, query-based \cite{2018Query} or score-based \cite{2020MetaSimulator}\cite{9239350} methods are developed to directly estimate gradient of confidence scores. However, these methods are query-intensive and computation-expensive, thus limiting their applications in real-world applications. In addition, most of existing AE attacks including both white-box and black-box methods ignore to generate AEs for defensive DNNs in the scenarios of MLaaS. 
+
+With the flexibility of searching framework, evolutionary algorithms can help to address the design problem related machine learning applications. Well-designed evolutionary algorithms have been used for image generation \cite{DBLP:journals/tec/WangXYT19}, image classification \cite{DBLP:journals/tec/BiXZ22a} \cite{DBLP:journals/tec/SunXZY20} and neural architecture search \cite{DBLP:journals/tec/ONeillXZ21}. As one popular method, Genetic Algorithm (GA) is popular to search optimal solutions for constrained optimization problems. Particle Swarm Optimization (PSO) can obtain optimized solutions in a large stochastic searching space by imitating the food-finding process of a swarm of birds \cite{PSO}. GA-based gradient-free optimization methods \cite{alzantot2019genattack} are proposed have been proposed to synthesize adversarial examples.  However, the research to generate AEs using evolutionary algorithms is seriously overlooked for defensive DNNs.    
+
+As a supplementary work, this paper approaches to implement black-box AE attacks on defensive DNN models deployed in servers like MLaaS. The design problem of generating AEs can be formulated as a multi-objective optimization problem, in which it is indispensable to consider three objectives regarding to defensive DNNs, i.e, attack effectiveness, attack evasiveness and attack coverage. Inspired by the merits of evolutionary algorithms, this paper proposes GA-based Query-efficient Attack (GAQA) to address the perturbation optimization problem in image domain. To improve the search efficiency and reduce the cost of query, we extend the GA-based search framework with AE-specific operators including block-level and pixel-level crossovers, discrete perturbation mutation and direction-driven reproduction. To improve the convergence of GAQA, we choose to upgrade the reproduction-related parameters according to the predication of searching overhead. Furthermore, PSO-based jumping process is further devised if the searching is predicted to be stuck at local optimum. Compared with current black-box methods, GAQA can effectively generate optimal perturbations on images and significantly decrease the number of queries to the victim model.
+
+In summary, this paper has the following contributions:
+\begin{itemize}
+\item	We identify the requirements of attacking defensive DNNs in black-box mode, and formulate the generation of AEs into a multi-objective optimization problem.
+\item	We propose a GA-based query-efficient attack method to generate image AEs to breakthrough victim models with defensive mechanisms. During the GA-based search framework, AE-specific operators including block-level crossover, pixel-level shuffle crossover, discrete perturbation mutation and direction-driven reproduction are designed to improve the efficiency of search and thus reduce the query cost to victim models.
+\item   Based on the prediction of searching iterations, we introduce predication-based adaptation for reproduction-related parameters to speed up the search convergence, and design PSO-based jump to avoid the search stuck at local optimum.
+\item  Benchmark-based experiments on CIFAR-10, CIFAR-100 and ImageNet-1K are conducted to evaluate the efficiency of our method in both defensive and non-defensive scenarios. Our method has significant improvements in terms of attack success ratio, query cost and attack coverage, and especially for defensive models, our method can obtain top attack performance with an average reduction of 60.8\% in query times comparing with chosen candidates.
+\end{itemize}
+
+The rest of this paper is organized as follows. Section II describes preliminaries work. Section presents the threat model and formulate the design to a multi-objective optimization problem. In Section IV, the detailed design of query-efficient GA attack is given. In Section V, extensive experiments are conducted to evaluate the performance of proposed method. Finally, Section VI concludes the paper with future work.
+
+
+
+
+
+
+
+\section{PRELIMINARIES }
+
+%This section introduces the preliminaries. For further reference, most symbols of this paper are listed in Table \ref{tab:symbol}.
+
+%\begin{table}[tb]
+%\centering
+%\caption{Symbol Table}
+%\scalebox{0.9}{
+%\begin{tabular}{cc}
+%\toprule
+%\multicolumn{1}{c}{Symbol} & \multicolumn{1}{c}{Definition} \\
+%\midrule
+%%$F(\cdot)$	&   Defensive model  \\ 
+%$x$	&   Original image input\\ 
+%$w,h$	&    the weight and height of original image input\\ 
+%%$y$	&  			Original label\\
+%$\epsilon$	&   Maximum perturbation limit \\
+%$x_{adv}$	&  	The adversarial example\\ 
+%$g^{ef}(\cdot)$ & The attack effectiveness of input\\
+%$g^{ev}(\cdot)$ & The  attack evasiveness of input\\
+%$P$	&  			The perturbations\\ 
+%$P^i_j$		&	The $j$-th perturbation in the $i$-th population set \\	
+%$CR({A},{B})$& 	The coverage ratio of attack method A to attack method B\\
+%$\Upsilon(A)$ &The set of AEs by attack method A\\				
+%$MAS$& 			The minimum of attack set\\
+%$MCSD(\cdot)$ & The mean convolution standard deviation of input\\
+%$\Omega(i)$& The probability to be selected for next generation \\
+%$\Lambda_j$,$\Lambda_k$ & The shuffling matrix.\\
+%				$\Gamma (i,j)$ &is gset to 1 with the probability of $Prob_{muta}$\\
+%$Prob_{muta}$ & The mutation ration in perturbations\\
+%$V$&  			The speed set of particle  \\
+%$V^i_j$&  		Speed of the $j$-th particle in the $i$-th generation \\
+%$\Theta$	& 	The threshold of starting PSO-Jump process \\
+%$\gamma$	& 	The number of classes of variation\\
+%$\Phi$	& 			The set of fitness value of chromosome  \\
+%$\Phi^i_j$	& 		Fitness value of the $j$-th perturbation  in the $i$-th population set  \\
+%$P^i_\ast$	& 	The perturbation which has the greatest fitness in $i$-th iteration \\
+%$P^\ast_j$	& 	The perturbation with the greatest fitness in $j$ generation\\
+%$\eta$	& 	The number of block-based crossover  \\
+%$\rho$	& 		The number of perturbation-varied reproduction  \\
+%$Q$	&           The number of perturbations in one generation\\
+%$N$	&  			The number of iterations  in GA process \\
+%$U$&           	The number of iterations in PSO-Jump process \\
+%$\nu$&			The additional number of iterations to optimal evasiveness\\
+%$W$	&           The number of particles in  PSO-Jump process\\
+%$\beta$	& 	    The estimated needed number of iterations \\
+%\bottomrule
+%\end{tabular}
+%}
+%\label{tab:symbol}
+%\end{table}
+
+\subsection{Deep Neural Networks}
+As the primary group of machine learnings, Deep neural networks (DNNs) are immense popular in regression tasks and classification tasks of emerging intelligent systems, especially for image processing systems. DNNs are designed to learn the high-level features using layer-by-layer data processing in high-dimension space, similar to the information flow of neurons in living organisms. Considering the supervised-learning classification, a DNN can be represented by a function $f(\cdot)$: $X \to Y$, where $X$ and $Y$ are the input set and output set respectively. The DNN model $f(\cdot)$ is trained based on the training data set with $E$ labeled inputs $D = \{(x_i,y_i)\}_{i=1}^E$, where $x_i \in X$ is an input instance and $y_i \in Y$ is its ground-truth class label.
+
+%	\subsection{Adversarial Example Attack}	
+%		Adversarial example (AE) attacks are typically launched by maliciously crafted inputs, and aim to let DNN models to misbehave. For image classification tasks, well-designed AEs is capable of fooling DNN models with wrong predictions while being imperceptible to human naked eyes. Given the benign input $x$ with the class label as $y=f(x)$, the perturbed $x_{adv} = x + \delta$ is defined as an AE if misclassified to the label $\hat{y} \neq f(x)$. The perturbation is limited the human perception constraint as $|| x_{adv} - x||_L \leq \varepsilon$, where $\varepsilon$ is the perturbation bound of $L$-norm. 
+%		Given a truth label $t \in Y$ and $t \neq f(x)$, the AE can be further recognized as a targeted AE if $f(x_{adv})=t$, otherwise it is an un-targeted AE. %if $f(x_{adv})\neq f(x)$.   
+\subsection{Adversarial Example Attack}	
+Adversarial example (AE) attacks are typically launched by maliciously crafted inputs, and aim to let DNN models to misbehave. For image classification tasks, well-designed AEs is capable of fooling DNN models with wrong predictions while being imperceptible to human naked eyes. Given the benign input $x$ with the class label as $y=f(x)$, the perturbed $x_{adv} = x + \delta$ is defined as an AE if misclassified to the label $\hat{y} \neq f(x)$. The perturbation is limited the human perception constraint as Eq. \ref{eq:limts}.
+\begin{equation}
+|| x_{adv} - x||_L \leq \varepsilon
+\label{eq:limts}
+\end{equation}
+where $\varepsilon$ is the perturbation bound of $L$-norm. 
+Given a truth label $t \in Y$ and $t \neq f(x)$, the AE can be further recognized as a targeted AE if $f(x_{adv})=t$, otherwise it is an un-targeted AE. %if $f(x_{adv})\neq f(x)$.  
+\subsection{Defensive DNNs}	
+To mitigate the serious damage of AEs, defensive mechanisms must be designed to enhance the robust of DNNs. A Defensive DNN model is defined as $F(x_{adv}, \iota)$, which is able to alleviate the impact of perturbed input $x_{adv}$ with the defensive policy $\iota$. For the image classification task, the predicted label of $x_{adv}$ with the defensive DNN model is expected to be the predication of $x$, i.e., $F(x_{adv}, \varpi) = f(x)$.  
+There are generally three kinds of defense policies, i.e., Adversarial Training (AT), Gradient Masking (GM) and Input Transformation (IT) and $\varpi=\{AT, GM, IT\}$. AT is designed to train the newly generated or discovered AEs with their ground-truth labels to construct defensive DNNs. AT is expensive to obtain holistic AEs and cannot guarantee its effectiveness facing emerging AEs, especially black-box generated AEs. GM is to force DNN models to have zero-close gradients, thus reducing the perturbation sensitivity to DNN models. GM is also cost-expensive and not suitable for black-box attacks. IT is devised to reduce the model sensitivity to perturbations on original images. IT is cost-effective and has no impact on the deployed DNN models, which is the main challenge for query-based black-box AE attacks, i.e., $\varpi={IT}$ in this work.
+
+
+
+%	\subsection{Defensive deep neural networks}	
+%	\subsubsection{Identification and elimination model} 
+%	Some defense methods \cite{DBLP:conf/ndss/Xu0Q18} against adversarial example attacks to DNNs consists of  identification and elimination  model. Assume that the defenders know the model structure and can deconstruct the DNN model to get the weight parameters. The original training dataset is unknown to defenders, meaning that the defense strategy cannot be designed from the perceptive of the dataset. Given a modified image input $x_{adv}$, the identification phase $ID(\cdot)$ identifies whether an image is attacked, i.e., $ID(x_{adv})==\{TRUE,FALSE\}$. If yes, the elimination phase $EL(\cdot)$ is applied to repair the modified image $X_{adv}$, i.e., $X=EL(X_{adv})$, as shown in Fig. \ref{recognize}, 
+%	a modified image is well-designed to fool the target model. 
+%	\begin{figure}[t]
+%		\centering
+%		\hspace{1cm} \includegraphics[width=3.5in]{recognize.pdf}
+%		\centering \caption{Adversarial example recognition relies on two networks: identification and elimination  model. When the identification  model gets a clean input, it will output "No", and sent the sample to classify DNN. Once it gets an adversarial image, it will output "Yes", and send input to eliminate DNN, this DNN will erase the perturbation and output a clean image to classify DNN.}
+%		\label{recognize}
+%	\end{figure}
+%	The identification and elimination strategy is applied to defend against potential adversarial example attacks. 
+%	
+%	\begin{figure}[!b]
+%		\centering
+%		\hspace{0.8cm} \includegraphics[width=2.8in]{train.pdf}
+%		\centering \caption{This is a high-dimension coordinate system in input space. There are two different colored circle around example $x_i$, first one is red circle, it' represent untrained decentered neighborhood $\mathring{U}(x\_train_i, \delta)$, every example in $\mathring{U}$ should be classified into $y_i$. The blue ellipse represent the decision boundaries $\partial x$ for classification models, the example in $\partial x$ will be classified into $y_i$. This two ovals divide the input space into three parts. (1) the center part represents input looks like $y_i$ and model classify it into $y_i$, which is called positive examples. (2) the up and down blue part represents  input does not looks like  $y_i$ but model classify it into $y_i$, which is called negative examples. (3) the left and right area represents  input  looks like  $y_i$ but model does not classify it into $y_i$, which is called adversary example.}
+%		\label{train}
+%	\end{figure}
+%	
+%	
+%	\begin{figure}[h]
+%		\centering
+%		\includegraphics[width=3.5in]{compress.pdf}
+%		\centering \caption{Image compression used to reduce input space.  Training high-dimensional data require larger models. However, larger models have more adversarial examples, and image compression compresses the input to a smaller size to get a simple classify DNN, so the trained model has better robustness.}
+%		\label{compress}
+%	\end{figure}
+%	
+%	\subsubsection{Adversarial training model} 
+%	Another way to defend against attack is to construct a robust model \cite{yin2019adversarial}. Considering a complex DNN $F(\cdot)$  with numerous parameters, it has a powerful  ability to fit the input signal. For any training image $x\_train_i$, back propagation algorithm adjust the parameters of DNN to make $F(x\_train_i)$ equals to $y\_train$. But for a  high-dimensional space $\mathring{U}(x\_train_i, \delta)$ approximate to $x\_train_i$, it doesn't as train dataset to train $f(\cdot)$. Those untrained decentered neighborhood $\mathring{U}(x\_train_i, \delta)$ space is the source of adversarial examples. Defenders could build robust DNN $f(\cdot)=T({\mathring{U}(x\_train, \delta),y\_train})$, which is called adversarial training,  as shown in Fig. \ref{train}.
+%	\subsubsection{Image feature compression model} 
+%	From another point of view, defenders could reduce the decentered neighborhood. Defenders  could use image compression to reduce high-dimensional data to low-dimensional data. The compression phase $C(\cdot)$ will compress an input image. i.e., for any image input $X_{adv}$, the compression phase $C(\cdot)$ is applied to compress the image $X_{adv}$, i.e., $X=C(X_{adv})$ as shown in Fig.
+%	\ref{compress}.
+
+
+\subsection{Genetic Based Evolutionary Algorithm}
+AS a gene-based evolutionary algorithm, Genetic Algorithm (GA) is of immense popularity to search optimal solutions for constrained optimization problems like fault-tolerant design exploration for distributed multiprocessor systems \cite{DBLP:journals/tec/YuanCY20} and neural architecture search \cite{DBLP:journals/tec/ONeillXZ21}.  
+Inspired by the process of natural selection, GA iteratively evolves a population $P$ of candidate solutions to have better fitness. The quality of population members is evaluated by a fitness function. The $j$-th solution in $i$-th generation ($P^i_j$) with higher fitness $\Phi^i_j$ function values are more likely to be selected in the next generation $P^{i+1}$. In general, evolutionary operators of selection, crossover and mutation are utilized to breed the next-generation population. The crossover and mutation operator are designed to increase the diversity of population while the selection operator is used to find globally better solutions $P_{best}$ in the search space. As a flexible searching framework, GA can be designed to support both single-objective and multi-objective optimization problems. In this paper, we use GA to address the AE generation problem since it can be inherent formulated as constrained optimization problems.  	
+
+\begin{figure}[!b]
+\centering
+\includegraphics[width=0.48\textwidth]{MLaaS.pdf}
+\caption{Black-Box Attacks on Defensive DNNs in MLaaS}  
+\label{fig:MLaaS}
+\end{figure}
+
+
+\section{ATTACK MODEL FORMULATION}
+\subsection{Threat Model}
+This paper considers black-box attacks on Machine-Learning-as-a-Service (MLaaS).As shown in Fig. \ref{fig:MLaaS}, MLaaS are always well constructed to provide users with query interface and return them with the corresponding prediction results. This is reasonable since white-box attacks need to know the detail information of model architecture, model parameters and training data of the victim DNN models. On the contrary, black-box attacks are assumed to be zero-knowledge of architecture, parameters or any other settings of targeted DNN models. In addition to the strong ability of model prediction, we assume the victim DNN models are deployed with certain defensive protections to ensure their robust to adversarial attacks. Typical defensive mechanisms are of three categories, i.e., adversarial training, gradient masking, input transformation. 
+
+More specific, this paper aims to deploy a query-based gradient-free black-box attack on MLaaS, which can adaptively upgrade the attack strength of adversarial inputs according to the returned confidence values of all classes. The query operation of the victim model can be defined as the function $F(x)$, within which $F(x)_y$ returns the confidence of recognizing input $x$ as class label $y$. Due to the selection of both query-adaptive and gradient-free policies, our method can inherently cope with adversarial training and gradient masking defense mechanisms. As a cost-effective and easy-deploy defensive mechanism, input transformation is generally designed to detect or alleviate the noise on adversarial examples which has no change of original DNN models. This paper will focus on dealing with IT-based detection and defense within MLaaS.    
+
+
+%	\iffalse
+%	\subsection{Motivation}
+%	In this subsection, the efficiency of adversarial example attack is investigated, from which the motivation of this paper can be derived. To be specific, the experimental in this section is based on Resnet152 model and VGG16 model, CIFAR-10 dataset. 
+%
+%	\subsubsection{Query-inefficiency}
+%	We evaluate from traditional genetic algorithm and other black-box attacks from three metrics attack success ratio (ASR), average queries (AQ) and Runtime. The result is shown in Fig. \ref{motivation}. It can be learned from Fig. \ref{motivation} that the average query number of genetic algorithm decreases almost $68.7\%$ compared with other methods, and the runtime also decrease almost $52.3\%$, although ASR of genetic algorithm decrease nearly $12.3\%$. 
+%	The experiment indicates that genetic algorithm has a strong searching capacity.
+%	
+%	\begin{figure}[tb]
+%	\centering
+%	\subfigure[ ]{
+	%		\includegraphics[width=4cm]{salman.pdf}
+	%		
+	%	}\subfigure[ ]{
+	%		\includegraphics[width=4cm]{wong.pdf}
+	%	}
+%	\caption{Experiment on two defense methods on CIFAR-10.}
+%	\label{motivation}
+%\end{figure}	
+%
+%
+%	\subsubsection{Attack coverage}
+%	Adversarial training is an useful tool to build a stronger DNN, where defenders could use attack method to generate adversarial examples and put them into training process. Therefore, it is important for defenders to find  adversarial examples as much as possible.  Defenders  usually use white-box attack methods to generate adversarial examples because they have access to the parameters and structure of their model. But some white-box algorithm may have different coverage compared with black-box attack. 
+%	
+%	\textcolor{blue}{ For example, firstly we define $G(F(\cdot),x)$ is the probability of model $F(\cdot)$ classifies $x$ incorrectly minus classifies $x$ correctly, it means the model misclassify the input when $G(F(\cdot),x)>0$. For any point $y,z \in a$, it satisfies Eq. \ref{in}. Then  we define an area $a$  named convex space around $x_{train}$ in high-dimension space, it satisfies Eq. \ref{convex}. }
+%	\begin{equation}
+	%		\label{in}
+	%		\begin{split}
+		%			||x-y||_2\leq \epsilon ,||x-z||_2\leq \epsilon \ 
+		%		\end{split}
+	%	\end{equation}
+%	{\small
+	%	\begin{equation}
+		%		\label{convex}
+		%		\begin{split}
+			%			G(F(\cdot),by+(1-b)z) \leq bG(F(\cdot),y)+(1-b)G(F(\cdot),z)\\
+			%			s.t.\;\;b \in[0,1] \qquad\qquad\qquad\qquad\qquad
+			%		\end{split}
+		%	\end{equation}
+	%}
+%
+%	\begin{figure}[!b]
+	%	\centering
+	%	\hspace{2cm} \includegraphics[width=2.8in]{convex_space.pdf}
+	%	\centering \caption{\textcolor{blue}{ In the searching region starting with $c$ and ending with $d$, there are two convex regions $a$,$b$. The gradient-based white-box attack algorithm usually only searches in region b.}}
+	%	\label{convex_space}
+	%\end{figure}
+	%	Apparently, as shown in Fg \ref{convex_space}, convex space are not unique. Some white-box attacks only search at one convex space which contains $x_{train}$. In contrast to white-box attack, block-box attack has a wider search space, because it has no knowledge of the specific distribution of the high-dimensional space around the original example. 
+	%	
+	%\fi
+	
+	
+	
+	\subsection{Objective Formulation for AE Generation}
+	In this paper, we aim to fast generate AEs via query-based black-box method to attack defensive DNNs deployed in MLaaS. Due to the inherent characteristics of gradient-free and adaptive query, we only need to deal with detection-based defensive mechanisms based on input transformation while ignoring the defensive mechanisms of adversarial training and gradient masking. In terms of input transformation, there are mainly two kinds of defensive methods, i.e., feature squeeze based detection \cite{DBLP:conf/ndss/Xu0Q18} and image compress (e.g., JPEG compress \cite{Liu_2019_CVPR}. To successfully attack the DNN models deployed in MLaaS with input transformation, we have to achieve three objectives, i.e., attack effectiveness, attack evasiveness and attack coverage. Attack effectiveness means the generated AEs can let the victim to be misclassified with high confidence. Attack evasiveness indicates that the generated AEs is capable of escaping the detection-based defensive mechanisms. In terms of attack coverage, the generated AEs via our method have high coverage of the AEs generated by existing attack methods.
+	
+	
+	
+	\begin{itemize}
+		
+		\item \textit{Attack Effectiveness:} this objective is constructed to quantify the effective quality of the generated AE to attack the victim DNN model deployed in MLaaS platform. We first define $F(x + \delta)_y$ function as the returned confidence value of recognizing AE input $x + \delta$ as class label $y$. For any given benign input $x$, we expect to find the AE with the maximal confidence to be classified as non-ground truth label $t$. Therefore, we can define the attack effectiveness of an AE, denoted as $g(x_{adv})$, as Eq.\ref{eq:effectiveness}.
+		\begin{equation}
+			\label{eq:effectiveness}
+			g^{ef}(x_{adv}) = \max\limits_{j \neq t} \: (F(x+\delta)_j - F(x+\delta)_t, 0)
+		\end{equation}
+		
+		
+		\item \textit{Attack Evasiveness:} this objective is used to quantify the quality of evasiveness of the generated AE to the defensive mechanism of victim model. Since feature-squeezing and image-compress are two most widely used input transformation policies, we must try our best to guarantee the generated AEs can stealthy pass the corresponding process. Image compress can remove small perturbations on the input image, i.e., removing high-frequency signals in images. Feature squeeze has been proven to be an effective method to alleviate adversarial perturbations, and the squeezed examples could be utilized to detect AE attacks by $L$-norm based detection. Consequently, the objective of attack evasiveness consists of two parts, i.e., the evasiveness for $L$-norm based detection and the evasiveness of keeping the adversarial signals without alleviation by image compress. Specifically, we use normalized $L_2$-norm for the first part since it represents the euclidean distance between AE sample and clean sample. We define $MCSD(x_{adv})$ as mean convolution standard deviation to evaluate the high frequency signals of AE, which calculates the standard deviation of a pixel point and its eight adjacent points. Given the original input $x$ and its AE $x_{adv}, $Eq. \ref{eq:evasiveness} formulated the objective of attack evasiveness.
+		\begin{equation}
+			\label{eq:evasiveness}
+			g^{ev}(x_{adv}) =\frac{||x_{adv}-x||_2}{\sqrt{dim(x)\times \epsilon^2}} + MCSD(x_{adv})
+		\end{equation}
+		where, $dim(x)$ is the dimension of input $x$, $\epsilon$ is the bound of $L_2$-norm to escape human perception. Given the input image $x$ having the width $w$ and the height $h$, $x$ the MCSD(x) can be obtained by Eq. \ref{eq:mcsd}.
+		\begin{equation}
+			\label{eq:mcsd}
+			MCSD(x)= \frac{\sum_{i=2}^{w-1}\sum_{j=2}^{h-1} std(x_{i-1}^{j-1},..., x_i^j, ..., x_{i+1}^{j+1})}{(w-2)(h-2)}
+		\end{equation} 
+		where $std(x_{i-1}^{j-1},..., x_i^j, ..., x_{i+1}^{j+1})$ indicates the standard deviation of $x_i^j$ and its eight adjacent points. 
+		
+		
+		\item \textit{Attack Coverage:} In contrast to white-box attack, black-box attack has a wider search space because it has no knowledge of the specific distribution of the high-dimensional space. Besides the objective of attack effectiveness, we need to evaluate the attack coverage ratio of the proposed black-box attack method. Given a set of clean  images and the attack method A, $\Upsilon(A)$ is used to denote the set of AEs which successfully attack the victim model. Consequently, we use $CR(A, B)$ to denote the coverage ratio between attack method A and B, which is the ratio of the number of intersection set of them to the number of B's AEs. Therefore, we have the objective of attack coverage for our method as:
+		\begin{equation}
+			\label{eq:coverage}
+			CR(QGD, Others) = \frac{|\Upsilon(QGD)\bigcap \Upsilon(Others)|}{|\Upsilon(Others)|}
+		\end{equation}
+		where $Others$ represents the existing attack methods.
+		
+		
+	\end{itemize}
+	
+	\section{Design of Query-Efficient AE Attack}
+	In Section III(B), the query-based black-box attack has been formulated as a multi-objective optimization problem, which is obviously a non-convex and discrete optimization problem. Due to the explosive search space, it is extremely difficult to find the optimal AE to attack defensive DNN models. Inspired by Genetic Algorithm (GA), one of the most flexible and efficient searching evolution algorithm, in this section we propose GA-based Query-efficient Attack (GAQA) to search for the best adversarial examples, in which AE-specific components are designed to speed up the evolution procedure and PSO-based jumping is incorporated to avoid local optimal solutions.
+	
+	
+	\subsection{Attack Framework}
+	The attack framework of GAQA is illustrated in Fig. \ref{fig:attackFramework}. Similar to GA's searching framework, GAQA is designed to iteratively evolve the perturbations on clean images, with the purpose to successfully attack the defensive victim DNN model. During each iteration procedure, query accesses on the victim model will be conducted to obtain the confidence values of the generated AEs, which can be further exploited to generate better perturbations via well-designed selection and reproduction operators. A special jumping process, i.e., PSO-based jumping, is additionally introduced to avoid the problem of local optimum stuck.
+	
+	The work flow of GAQA can be seen in Fig. \ref{fig:attackFramework}, which consists of seven stages. In Stage (1), i.e., Initialization stage, a set of diversified perturbations are generated as the initial population of GAQA. In Stage (2), i.e., Query stage, the adversarial examples (composed of perturbation and clean image) are feed to the victim model to get the corresponding confidence values of prediction classes.  In Stage (3), selection operator takes in charge of probabilistically choosing so-far best perturbations (solutions) based on the fitness values of them. In Stage (4), new solutions (perturbations) will be generated via Reproduction operators including Perturbation-varied reproduction, Block-based crossover, and Shuffle-based crossover.  Jumping process (Stage 5) will further used to generate non-local optimal solutions when the number of iterations reaches at the predefined threshold $\Theta$. Adaptive mutation is designed to improve the diversity of the perturbations in Stage (6). In Stage (7), Adaptive function is designed to update the parameters of reproduction operators for the next iteration procedure, which is helpful for convergence of GAQA.  
+	
+	\begin{figure*}[tb]
+		\centering
+		\includegraphics[width=6.5in]{all.pdf}
+		\caption{Attack framework of GAQA}  
+		\label{fig:attackFramework}
+	\end{figure*}		
+	
+	
+	\subsection{Chromosome and Fitness Construction}
+	Given a clean image, the corresponding AE depends on the perturbation on each pixel of the image. Hence, the solution (i.e., perturbation) on a clean image is explicitly denoted by a matrix chromosome $\delta^{( w \times h)}$, where $w$ and $h$ are the width and height of the clean image, respectively. Note that, each element of the matrix chromosome $\delta^{( w \times h)}$ can change independently. 
+	
+	To guide the searching direction of GAQA, a fitness function should be designed to evaluate the quality of each solution. For query-based black-box attack on defensive DNNs, there are three objectives mentioned in Section III(B), i.e., attack effectiveness, attack evasiveness and attack coverage. The objective of attack coverage could not be represented in the fitness function, since it depends on the experimental comparison with other attack methods. However, due to the characteristic of diversified searching, GAQA can inherently improve attack coverage comparing with white-box attacks. For AE attacks, there exists an implicit priority rule between the objectives of attack effectiveness and evasiveness. In other words, the objective of attack evasiveness needs to be improved only if the AE attack is effective.       
+	Consequently, we define the fitness ($\Phi$) of each perturbation solution by Eq. \ref{eq:fitness}. 
+	\begin{equation}
+		\begin{split}
+			\Phi = min[(1+\max\limits_{t\neq y}{(F(x_{adv}))}-F(x)_y),1+\psi]\\
+			+\frac{\psi}{2}\times[(1-\frac{||x_{adv}-x||_2}{\sqrt{dim(x)\times \epsilon^2}})+(1-\frac{MCSD(x_{adv})}{MCSD^{max}})] 				
+		\end{split}
+		\label{eq:fitness}
+	\end{equation}
+	
+	
+	According to Eq. \ref{eq:fitness}, the fitness function consists of two parts. The first part is related to the objective of attack effectiveness, whereas the second part focuses on the objective of attack evasiveness. Given $\psi$ as the minimal value of attack effectiveness (calculated by Eq. \ref{eq:effectiveness}), the fitness function is transformed to optimize the attack evasiveness while guaranteeing the attack is effective. For the situation of failed AE (attack is not successful on the victim model), $\max\limits_{t\neq y}{(F(x_{adv})_t)}-F(x)_y)$ is less than zero. Consequently, the first part of Eq. \ref{eq:fitness} is less than 1, and the maximal fitness value is less than $1 + \psi$. For the situation of successful AE attack, the value of the first part is fixed to  $1 + \psi$ according to the $min$ operation on it. Therefore, we only need to optimize the second part to find perturbations with high attack evasiveness. 
+	
+	
+	\subsection{Initialization}
+	Before the searching iteration, GAQA needs to construct the initial population. We use $P^i$ to denote the population for $i$-th iteration (evolving generation), which is composed of $n$ solutions (perturbations). $P^i_j$ is the $j$th solution in the $i$-th generation, which is coded as a perturbation chromosome $\delta^{( w \times h)}$. It is of critical importance to construct the initial population $P^0$ with the purpose of improving the search efficiency. Diversified initial population could avoid the searching to get stuck at local optimum, thus reducing the query number on the defensive DNNs. To deceive the perception of human eyes, each element of the perturbation has the bound of $-\epsilon,\; \epsilon$. Given a clean image $x$, the accumulated perturbation for all elements is up to $2\epsilon \times dim(x)$. We expect to initiate the perturbations of all solutions to fill the searching space uniformly. Each solution could have the average perturbation range as $L= \frac{1}{n} \times (2\epsilon \times dim(x))$ for $n$ solutions of $P^0$. To make the initialization more practical, we set average perturbation distance of to adjacent solutions to $0.8L$. In specific, we first set $P^0_1=[-\epsilon]^{dim(x)}$ and $P^0_n=[\epsilon]^{dim(x)}$. Given $\xi$ as the increase between two consecutive perturbations, $P^0_{i+1}$ can be calculated based on $P^0_{i}$, as shown in Eq. \ref{eq:initial}.
+	\begin{equation}
+		\label{eq:initial}
+		P^0_{i+1}=Clip(P^0_i+\xi,-\epsilon,\epsilon) 
+	\end{equation}
+	where, $0.8L\leq|\xi|\leq L$ and $i \in[1,n-2]$. $Clip(a, b, c)$ has the function of clipping $a$ to $b$ if $a < b$, and clipping $a$ to $c$ if $a > b$.
+	
+	
+	\subsection{Solution Selection}
+	With the purpose of preventing the disappearance of elite solutions and ensuring the non-decrease of the fitness function, the solutions with high fitness values are generally expected to be kept in the next generation. However, keeping certain weak solutions into the next iteration is also absolutely necessary since they also have certain superior genes in their chromosomes. The inferior solutions can help to improve the diversity and avoid local optimum. In this paper, we propose the elites-preferred probabilistic selection to choose solutions for the coming iterations in our GAQA. First, the solutions in the current generations are sorted by the decrease order of their fitness values. Then, we assign a filter probability for each solution. Given the $i$-th perturbation solution in the sorted population, $\Omega(i)$ is used to denote its probability to be selected for next generation.  $\Omega(d)$ is designed to decrease with the increase of $d$ to guarantee the high probability to select elite solutions, as shown in Eq. \ref{eq:selection}.
+	\begin{equation}
+		\label{eq:selection}
+		\Omega(i)=(\frac{n}{n+i-1})^\pi
+	\end{equation}
+	where $\pi$ is used to control the number of selected solutions for next generation. $\Omega(i)$ is decreasing with the growing of $\pi$. For example, given $\pi$ as $8$, the expected number of chosen chromosomes can be calculated to be $0.1417 \times n$ for the population with $n$ solutions. In other words, there are approximately $14\%$ of chromosomes will be retained into the next generation. $\Omega(1)$ always equals to $1$, indicating that the chromosome with highest fitness value will be definitely selected into the next generation.
+	
+	
+	
+	\subsection{Reproduction}
+	\subsubsection{Perturbation-Varied Reproduction}
+	It would be good policy to produce new offspring (solutions) in the direction of perturbation-direction of input data. We assume $P^i_j$ as the $j$-th solution in $i$-th generation and  $P^{(i+1)}_j$ as the $j$-th solution in $(i+1)$-th generation. If $\Phi(P^{(i+1)}_j) > \Phi(P^i_j)$, the fitness value of $P^{i+1}_j$ is improved compared to $P^i_j$. It has the high probability to increase the fitness value if changing the perturbation of  $P^i_j$  towards the direction $\Delta=P^{i+1}_j-P^i_j$. Let $P^{i+1}_k = P^{i}_j + \alpha \times \Delta$, searching with multi-granularity in the direction of $\Delta$ can help to find the optimal solution. This paper exploits a group of $\alpha$ to reproduce a batch of perturbations. In other words, $\alpha[\rho]$ will be set for generating $\rho$ child perturbations in next generation. The better $\alpha$ of offspring will be remained after superiority-driven probabilistic selection. Due to high time overhead to find the optimal $\alpha$ for each solution $P^i_j$, we choose to search for the near-optimal $\alpha$ only for $P^i_{1}$ in each generation, thus reducing the complexity of the query process.
+	
+	
+	
+	\subsubsection{Block-Based Crossover}
+	As mentioned in Section IV(B), solution (perturbation) is expressed by a matrix chromosome $\delta^{( w \times h)}$ which is the same matrix dimension as the clean image. Based on the traditional crossover method of GA, we introduce a block-based crossover operator according to the characteristics of matrix-expressed chromosome. The perturbation matrix for each father solution is first split into a number of square blocks. Then, the new child solutions are generated by the crossover operation (denoted by $BlockCrossover(P^i_j, P^i_k)$ based on any two father solution in $i$-th iteration), which is also illustrated in Fig. \ref{fig:block}. GAQA is designed to pick up certain top perturbations (the number as $\eta$) for reassembling operations. Consequently, block-based crossover will reproduce $2\eta\times(\eta-1)$ child perturbations. The specific values of $\eta$ and block size will be adaptively changed during each iteration, thus improving the convergence of QAGA.  
+	\begin{figure}[tb]
+		\centering
+		\includegraphics[width=7cm]{block.pdf}
+		\centering \caption{Illustration of Block Crossover Operation }
+		\label{fig:block}
+	\end{figure}
+	
+	
+	
+	\subsubsection{Shuffle-Based Crossover}
+	Different to block-based crossover, in this section we design a novel bit-level crossover to improve the diversity in the searching procedure. In natural selection, the superior offspring may be born with elite fathers and inferior fathers. Similarly, we consider to choose the solutions in elite population and inferior population to implement the shuffle-based crossover. Similar to card shuffling in card-play games, we randomly select the genes from their fathers to generate new solutions. We use $P^i_{Elites}$ and $P^i_{Inferiors}$ to denote the set of elite solutions and the set of inferior solutions in the $i$-th generation, respectively. In addition, we use the 0-1 matrix $\Lambda$ to represent the gene-shuffling selection of each selected father chromosome, where each element $\Lambda (i,j)$ of $\Lambda$  is set to 1 with the probability of $Prob_{shuf}$.
+	
+	
+	
+	Given $P^i_j \in P^i_{Elites}$ with shuffling matrix $\Lambda_j$ and $P^i_k \in P^i_{Inferiors}$ with shuffling matrix $\Lambda_k$, one child solution can be obtained by shuffle-based crossover, expressed by Eq. \ref{eq:shuffle}. 
+	\begin{equation}
+		Shuffle(P^i_j, P^i_k) = P^i_j \otimes \Lambda_j + P^i_k \otimes \Lambda_k
+		\label{eq:shuffle}
+	\end{equation}
+	where $\Lambda_j + \Lambda_k = 1$,and  $\otimes$ is Hadamard product of two matrix. This could guarantee all genes of $P^{i+1}_j$ are independently inherited from fathers.
+	
+	
+	
+	\subsubsection{Discrete Mutation Design}
+	Mutation can also improve the population diversity and prevent the searching from local optimum. Aiming at reducing the search space to achieve rapid convergence, this paper considers to let the perturbation mutation happened in discrete values. $\gamma$ is used to denote the number of discrete perturbation values in the range of [-$\epsilon$, $\epsilon$]. We assume the distance between any two consecutive perturbations are the same. For example, given the perturbation bound $\epsilon$ as $[1/255]$ and discrete number $\gamma$ as $3$, all perturbations will be restricted to three values, i.e.,  $[-1/255]$, $[0/255]$ and $[1/255]$. $\gamma$ determine the granularity of perturbation discretization, and it will be adaptively changed in the search iteration.
+	Similar to the design of shuffle-based crossover, we use the 0-1 matrix $\Gamma$ to represent the genes selected for mutation operations, where each element $\Gamma (i,j)$ is set to 1 with the probability of $Prob_{muta}$.
+	We use $M$ to denote a mutation matrix which has the same dimension as the clean image $x$, which is expressed as:
+	\begin{equation}
+		M=[\epsilon \times(2\times \lfloor \dfrac{ rand(0, \gamma)}{ \gamma-1}\rfloor -1)]^{dim(x)}
+	\end{equation} 
+	Therefore, given the solution $P^i_j$ in the $i$-th iteration, we can obtain the perturbation after mutation operation for next iteration search by Eq. \ref{eq:mu}.
+	\begin{equation}
+		\label{eq:mu}
+		Mutate (P^{i}_j) = P^i_j \otimes (1 - \Gamma^i_j) + M \otimes \Gamma^i_j  
+	\end{equation}
+	where $\otimes$ represents the Hadamard product of two matrix.
+	
+	
+	
+	\subsection{Adaptation of Searching Parameters}
+	With the increase of searching iterations, GAQA is generally prone to get stuck at local optimum, or slowly to reach the global optimum. We need to upgrade the search parameters in the searching iterations, aiming at improve the convergence and global optimum of solutions. The updates of searching parameters is closely related to the number of remaining iterations, denoted as $\beta$. In other words, the predicted $\beta$ depends on the so-far optimal fitness and the number of iterations. Given the sorted population $P^i$ for the $i$-th iteration, the fitness value $\Phi^i_1$ of the solution $P^i_1$ is the highest. We assume to predict the remaining iterations when GAQA has searched for 100 iterations. Given $i$ as the index of current iteration, the number of remaining iterations is predicted by Eq. \ref{eq:steps}.  
+	\begin{equation}
+		\label{eq:steps}
+		\beta=\begin{cases} 100\times\frac{ (1+2\psi-\Phi^i_1)}{\Phi^i_1-\Phi^{i-100}_1}&i \geq 100 \\
+			0 & else\\
+		\end{cases}
+	\end{equation}
+	where $1+2\psi$ is the maximal fitness value for all solutions according to Eq. \ref{eq:fitness}.
+	
+	
+	During the searching iteration, the parameters related reproduction operators need to be updated. First, the number of discrete perturbations, $\gamma$, needs to be refined. In the early stage of searching, there are only three optional perturbations on each pixel, i.e., $-\epsilon$, $0$ or $\epsilon$. This will lead to a reduced search space, but quickly find a local optimal. Based on the predicted $\beta$, $\gamma$ can be calculated by the following equation. 
+	\begin{equation}
+		\gamma=\max(\gamma,3+2\times \lfloor \dfrac{\beta}{250}\rfloor)
+	\end{equation}
+	For block-based crossover, $\eta$ is number of selected father solutions, which needs to be increased to diversify  the search direction, thus obtaining better offspring solutions. $\eta$ is calculated by the following equation.
+	\begin{equation}
+		\eta=Clip(10-\dfrac{(\beta-2500)}{1000},5,10)
+	\end{equation}
+	The mutation probability $\rho_{muta}$ and shuffling probability $\rho_{shuf}$ also need to be updated with the predicted $\beta$. The values of  $\rho_{muta}$ and $\rho_{shuf}$ will increase with the number of $\beta$ growing. For simplicity, we calculate them with the same following equation.  
+	\begin{equation}
+		Prob_{muta} = Prob_{shuf} =Clip(\frac{(\beta-5E3)}{2E5}),2E{-}2,0.1)
+	\end{equation}
+	The constants in the above equations are hyper-parameters of GAQA, which are set according to the experiences of experiments. With the updates of searching parameters, GAQA can adaptively work during the searching iterations and consequently quickly converge to find the near-optimal global solutions.
+	
+	
+	%	\begin{equation}
+		%		{
+			%		Adaptive(\beta)=
+			%		\begin{cases}
+				%		\gamma=\max(\gamma,3+2\times \lfloor \dfrac{\beta}{250}\rfloor)\\
+				%		\theta=clip(\frac{(\beta-5E3)}{2E5}),2E-2,0.1)\\
+				%		\eta=clip(10-\dfrac{(\beta-2500)}{1000},5,10)
+				%	\end{cases}
+			%}
+		%		\label{eta}
+		%	\end{equation}
+	
+	\subsection{PSO-Based Jumping Process}
+	Although we have introduced certain mechanisms to avoid the searching into local optimal space, there still has the possibility to fall into the local optimum after a large number of evolving iterations. In other words, the requirement satisfied adversarial example can not be generated even with high time overhead. Therefore, it is practical to set a threshold (denoted by $\Theta$) for the intolerable searching iterations. When the evolving iterations reach to $\Theta$, we can use jumping process to escape from the local optimal space. Some existing attacks \cite{2017Towards} consider to restart the searching by dropping all the perturbations, which is waste of the searching efforts. In traditional GA, mutation operator is generally used to jump out from the local optimal position.
+	However, it is not suitable for the search framework of GAQA, because we always expect to keep the perturbations better fitness values even with mutation operations. When applying mutation on the set of perturbations, it will result in certain high-quality genes and inferior genes. The high-quality genes from low-score chromosomes will be filtered out, whereas the high-quality genes from high-score chromosomes are mostly kept for the next searching iteration.
+	
+	In this paper, we deploy Jumping process after the selection stage (Stage 3), and GAQA will conduct the jumping process when the iteration threshold $\Theta$ has been reached. During the Jumping process, we design a new iterative search procedure based on PSO algorithm, which can help to escape from local optimal search due to no dropping of chromosomes. PSO is designed to an iterative searching algorithm by imitating the food-finding process of a flock of birds. PSO address the optimization problem by simultaneously moving the particles in the searching space based on the corresponding fitness values. The solutions of GAQA can be recognized as particles of PSO, and the perturbation changes in GAQA is related to the speeds in PSO. During the iteratively search of PSO, the number of particles (solutions) is always unchanged. In each iteration, the position of each particle is updated based on the moving speed, i.e., the perturbation change of adversarial example.         
+	
+	Fig. \ref{fig:PSO} uses an example to illustrate the evolving procedure of PSO for our AE search problem. We take the population after Selection stage in GAQA as the initial particles of PSO-Jump process. We use the same fitness function in Section IV(B) to evaluate the quality of each particles. The newly generated solution $P^i_j$ in $i$-th iteration is related to the solution $P^{i-1}_j$ and its moving speed (i.e., the perturbation change, denoted by $V^i_j$), which is formally expressed by Eq. \ref{eq:PSO-solution}.  
+	\begin{equation}
+		\label{eq:PSO-solution}
+		P^i_j = P^{i-1}_j + V^i_j
+	\end{equation}
+	In PSO, the next moving speed $V^i_j$ of each particle $P^i_j$ has the correlation with previous speed $V^{i-1}_j$, the best position it ever been (denoted by $P^*_j$) and the best position in the current iteration (denoted by $P^i_*$). Specifically,  $V^i_j$ can be calculated according to Eq. \ref{eq:speed}.
+	\begin{equation}
+		\label{eq:speed}
+		\begin{split}
+			V^i_j= &V^{i-1}_j+C_1 \times rand(0, 1) \times (P^*_j-P^i_j) \\ 
+			&+ C_2 \times rand(0, 1) \times (P^i_*-P^i_j)
+		\end{split}
+	\end{equation}  
+	where $rand(0, 1)$ is used to generate a random number in the range of [0, 1]. Coefficients $C_1$ and $C_2$ are used to balance the speed dependences on ever-been best position and current best position of the solution swarm. $P^*_j$ is the best solution (with the highest fitness value) of the $j$-indexed solutions for the first $i$ iterations.  $P^i_*$ is the best solution (with the highest fitness value) of all solutions in the $i$-th iteration.   
+	
+	\begin{figure*}[t]
+		\centering
+		\includegraphics[width=6in]{PSO.pdf}
+		\centering \caption{Illustration of PSO-based perturbations evolution. (a) represents the evolving of particle set of $P$, while (b) and (c) demonstrates the evolving of speeds $V$ and fitness values $\Phi$ of perturbation solutions generation by generation. The best solutions for the first three generations (denoted by $\protect\overrightarrow{P_*^i}$) can be obtained by chosen the perturbation with highest fitness value for each generation. For example, $P_2^2$ is the best solution in the 2nd generation which has the highest fitness value as 0.784. The best solutions for all particle positions (denoted by $\protect\overrightarrow{P^*_j}$) are also updated according to the fitness evolution matrix. 
+			Based on the evolution matrix for the first three generations, the solutions of 4th generation can be produced. For instance, the produce of $P_1^4$ depends on the solution $P_1^3$ in the position $j$ of 3rd generation and the speed $V_1^4$ according to Eq. \ref{eq:PSO-solution}. $V_1^4$ is related to the speed $V_1^3$ in 3rd generation, the best-so-far perturbation for the first particle (denoted by $P_1^* = P_1^1$), and the best perturbation in the 3rd generation (denoted by $P_*^3 = P_4^3$). Specifically, the calculation of $V_1^4$ can be referred to Eq. \ref{eq:speed}. After the updatate of $V_1^4$ and $P_1^4$, the fitness value of $P_1^4$ can also updated by the query to defensive DNNs. Similarly, the evolutions of $P$, $V$ and $\Phi$ for the 4th generation can be conducted.
+		} 
+		\label{fig:PSO}
+	\end{figure*}
+	
+	%{\small
+		%	\begin{equation}
+			%		\begin{split}
+				%			p^i_j=p^{i-1}_j+V^i_j\qquad\qquad\qquad\qquad\qquad\\
+				%			where\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad\\
+				%			V^i_j=V^{i-1}_j+C_1\!\times\!rand()\!\times(p^k_j-p^i_j)+C_2\!\times\!rand()  \!\times\!(p^i_l-p^i_j) \\   W^k_j>=W^i_j,W^i_l>=W^i_j~~ k,l\in[0,i)^{N} \qquad \qquad
+				%		\end{split}
+			%		\label{pso_1}
+			%	\end{equation}
+		%}
+	
+	
+	
+	\begin{algorithm}[t] 
+		\caption{Pseudo Code of GAQA}
+		\begin{small}
+			{\large \textbf{Input:}}\emph{ clean image $x$, true label $y$, perturbation bound $\epsilon$, iteration number $N$, iteration number $\nu$ after finding 1st AE}
+			
+			{\large \textbf{Output:}} \emph{best perturbation $bestP$}
+			
+			//\textbf{{\emph{\textcolor[rgb]{0,0,0}{Initialization}}}}		
+			\begin{algorithmic}[0]
+				\STATE \hspace{-0.3cm} {\small 1:} \hspace{-0.05cm} Initiate the perturbation solutions $P^0$ via Eq. \ref{eq:initial}
+				\STATE \hspace{-0.3cm} {\small 2:} \hspace{-0.05cm} Initiate jumping threshold $\Theta$
+				\STATE \hspace{-0.3cm} {\small 3:} \hspace{-0.05cm} Initiate reproduction parameters $\gamma, \eta, \theta$
+			\end{algorithmic}
+			
+			//\textbf{{\emph{\textcolor[rgb]{0,0,0}{Query Evaluation}}}}
+			\begin{algorithmic}[0]
+				\STATE \hspace{-0.3cm} {\small 4:} \hspace{-0.00cm}  \textbf{For} $i=1$ to $N$ \textbf{do} //Main iteration of GAQA
+				\STATE \hspace{-0.3cm} {\small 5:} \hspace{-0.00cm} \hspace{0.32cm} \textbf{For} $\forall\;P^i_j\;$  \textbf{in}  $P^i$ \textbf{do}
+				\STATE \hspace{-0.3cm} {\small 6:} \hspace{-0.00cm} \hspace{0.25cm} \hspace{0.25cm} $Query(Clip(P^i_j+x,0,1))$
+				\STATE \hspace{-0.3cm} {\small 7:} \hspace{-0.00cm} \hspace{0.25cm} \hspace{0.25cm} Calculate $\Phi^i_j$ according \textbf{to} Eq. \ref{eq:fitness} 
+				\STATE \hspace{-0.3cm} {\small 8:} \hspace{-0.00cm} \hspace{0.48cm}\textbf{EndFor}
+				\STATE \hspace{-0.3cm} {\small 9:} \hspace{-0.00cm} \hspace{0.36cm} Sort $\forall P^i_j \in P^i$ by the decrease of fitness
+				\STATE \hspace{-0.3cm} {\small 10:} \hspace{-0.40cm} \hspace{0.25cm}  \hspace{0.23cm} \textbf{If} $\Phi^i_1>1$ $\&\&$ $flag=0$ \textbf{do}
+				\STATE \hspace{-0.3cm} {\small 11:} \hspace{-0.05cm}  \hspace{0.5cm} $N=i+\nu;\;\;flag=1;$
+			\end{algorithmic} 
+			
+			
+			//\textbf{{\emph{\textcolor[rgb]{0,0,0}{Probabilistic selection}}}}
+			\begin{algorithmic}[0]
+				
+				
+				\STATE \hspace{-0.3cm} {\small 12:} \hspace{-0.05cm}  \hspace{0.25cm} \textbf{For} $j=1\;to\;Q$ \textbf{do} 	
+				\STATE \hspace{-0.3cm} {\small 13:} \hspace{-0.05cm}  \hspace{0.5cm} \textbf{If} $rand(0,1)>\Omega(j)$ \textbf{do} 	
+				\STATE \hspace{-0.3cm} {\small 14:} \hspace{-0.05cm}  \hspace{0.75cm} Delete $P^i_j$ from $P^i$
+				\STATE \hspace{-0.3cm} {\small 15:} \hspace{-0.05cm}  \hspace{0.25cm}  \textbf{EndFor}
+			\end{algorithmic} 	
+			
+			//\textbf{{\emph{\textcolor[rgb]{0,0,0}{PSO-Jump process}}}}
+			\begin{algorithmic}[0]
+				\STATE \hspace{-0.3cm} {\small 16:} \hspace{-0.05cm}  \hspace{0.2cm} Calculate the estimated steps $\beta$ by Eq \ref{eq:steps}.	
+				\STATE \hspace{-0.3cm} {\small 17:} \hspace{-0.05cm}  \hspace{0.35cm}\textbf{If} $\beta >  \Theta$   \textbf{do}
+				\STATE \hspace{-0.3cm} {\small 18:} \hspace{-0.05cm}  \hspace{0.6cm} $P^{i}=$ PSO-Jump($P^{i}$)  //$Call\;Alg$ \ref{alg:alg3}
+			\end{algorithmic} 
+			
+			//\textbf{{\emph{\textcolor[rgb]{0,0,0}{Reproduction}}}}
+			\begin{algorithmic}[0]
+				
+				\STATE \hspace{-0.3cm} {\small 19:} \hspace{-0.05cm}  \hspace{0.25cm} $Q=|P^i|$
+				\STATE \hspace{-0.3cm} {\small 20:} \hspace{-0.05cm}  \hspace{0.25cm} \textbf{For} $j=1$ to $\rho$ \textbf{do} //perturbation-varied reproduction
+				\STATE \hspace{-0.3cm} {\small 21:} \hspace{-0.05cm}  \hspace{0.5cm} $\Delta=P^i_1-P^{i-1}_1$	
+				\STATE \hspace{-0.3cm} {\small 22:} \hspace{-0.05cm}  \hspace{0.5cm} $P^{i+1}=P^{i+1}\cup(P^i_1+\alpha[j]\times\Delta)$
+				\STATE \hspace{-0.3cm} {\small 23:} \hspace{-0.05cm}  \hspace{0.25cm}  \textbf{EndFor}
+				
+				\STATE \hspace{-0.3cm} {\small 24:} \hspace{-0.05cm}  \hspace{0.25cm} \textbf{For} $j=1$ to $\eta$-1 \textbf{do}  //block-based crossover
+				\STATE \hspace{-0.3cm} {\small 25:} \hspace{-0.05cm}  \hspace{0.50cm} \textbf{For} $k=j+1$ to $\eta$ \textbf{do}
+				\STATE \hspace{-0.3cm} {\small 26:} \hspace{-0.05cm}  \hspace{0.75cm} $P^{i+1}=P^{i+1}\cup BlockCrossver(P^i_j,P^i_k)$
+				\STATE \hspace{-0.3cm} {\small 27:} \hspace{-0.05cm}  \hspace{0.5cm}  \textbf{EndFor}
+				\STATE \hspace{-0.3cm} {\small 28:} \hspace{-0.05cm}  \hspace{0.25cm}  \textbf{EndFor}
+				
+				
+				\STATE \hspace{-0.3cm} {\small 29:} \hspace{-0.05cm}  \hspace{0.25cm} \textbf{For} $j=1$ to $Q/2$ \textbf{do} //shuffle-based crossover	
+				\STATE \hspace{-0.3cm} {\small 30:} \hspace{-0.05cm}  \hspace{0.5cm} $P^{i+1} = P^{i+1} \cup Shuffle(P^{i}_{j},P^i_{Q/2+j})$ 
+				\STATE \hspace{-0.3cm} {\small 31:} \hspace{-0.05cm}  \hspace{0.25cm}  \textbf{EndFor}
+			\end{algorithmic} 
+			//\textbf{{\emph{\textcolor[rgb]{0,0,0}{Mutation Operation}}}}
+			\begin{algorithmic}[0]
+				\STATE \hspace{-0.3cm} {\small 32:} \hspace{-0.05cm}  \hspace{0.25cm} \textbf{For} $j=1$ to $Q$ \textbf{do} %//mutation operation
+				\STATE \hspace{-0.3cm} {\small 33:} \hspace{-0.05cm}  \hspace{0.5cm} $P^{i+1}=P^{i+1}\cup Mutation(P^{i+1})$
+				\STATE \hspace{-0.3cm} {\small 34:} \hspace{-0.05cm}  \hspace{0.25cm}  \textbf{EndFor}
+			\end{algorithmic} 
+			//\textbf{{\emph{\textcolor[rgb]{0,0,0}{Adaption}}}}
+			\begin{algorithmic}[0]
+				\STATE \hspace{-0.3cm} {\small 35:} \hspace{-0.05cm}  \hspace{0.25cm} Update adaptive parameters $\gamma$, $\eta$, $\theta$ via Eq. {12-14}
+				\STATE \hspace{-0.3cm} {\small 36:} \hspace{-0.12cm}  \textbf{EndFor}
+				\STATE \hspace{-0.3cm} {\small 37:} \hspace{-0.12cm}  Sort $\forall P^N_j \in P^N$ by the decrease of fitness values
+				\STATE \hspace{-0.3cm} {\small 38:} \hspace{-0.12cm}  \textbf{Return $bestP=P^N_1$} 
+			\end{algorithmic} 
+		\end{small}
+		\label{alg:alg2} 
+	\end{algorithm} 
+	
+	
+	
+	\begin{algorithm}[tb] 
+		\caption{Pseudo Code of PSO-Jump}
+		\begin{small}
+			{\large \textbf{Input:}} \emph{Particle set $P^{pso}$, the number of iteration $U$, the number of particles $W$}
+			
+			{\large \textbf{Output:}} \emph{Updated particle set of perturbations}
+			
+			\begin{algorithmic}[0]
+				\STATE \hspace{-0.3cm} {\small 1:} \hspace{-0.05cm}  \hspace{0.0cm} Sort $P^{pso}$ by the decrease order of fitness. 
+				\STATE \hspace{-0.3cm} {\small 2:} \hspace{-0.05cm}  \hspace{0.0cm} $P^1_\ast=P^{pso}_1$ %, calculated $\Phi^1_\ast$
+				\STATE \hspace{-0.3cm} {\small 3:} \hspace{-0.05cm}  \hspace{0.0cm} \textbf{For} $j=1$ to $W$ \textbf{do}
+				\STATE \hspace{-0.3cm} {\small 4:} \hspace{-0.05cm}  \hspace{0.25cm} $P^\ast_j=P^{pso}_j$ %, calculate $\Phi^1_\ast$ via Eq. \ref{eq:fitness} 
+				\STATE \hspace{-0.3cm} {\small 5:} \hspace{-0.05cm}  \hspace{0.0cm} \textbf{EndFor}
+				
+				\STATE \hspace{-0.3cm} {\small 6:} \hspace{-0.05cm}  \hspace{0.0cm} \textbf{For} $i=1$ to $U$ \textbf{do}
+				\STATE \hspace{-0.3cm} {\small 7:} \hspace{-0.05cm}  \hspace{0.25cm} \textbf{For} $j=1$ to $W$ \textbf{do} 
+				\STATE \hspace{-0.3cm} {\small 8:} \hspace{-0.05cm}  \hspace{0.85cm}  $\nabla_1=P^i_\ast-P^i_j$	
+				\STATE \hspace{-0.3cm} {\small 9:} \hspace{-0.05cm}  \hspace{0.85cm}  $\nabla_2=P^\ast_j-P^i_j$	
+				\STATE \hspace{-0.3cm} {\small 10:} \hspace{-0.05cm}  \hspace{0.80cm}  $V^{i+1}_j=V^i_j+C_1 \times rand()\times\nabla_1 +C_2 \times rand()\times\nabla_2 $	
+				\STATE \hspace{-0.3cm} {\small 11:} \hspace{-0.05cm}  \hspace{0.70cm} $P^{i+1}_{j}=P^i_j+v^{i+1}_j$	
+				\STATE \hspace{-0.3cm} {\small 12:} \hspace{-0.05cm}  \hspace{0.75cm} $Query(Clip(P^i_j+x,0,1))$ and Calculate $\Phi^{i+1}_j$  %//{\small fitness evaluation} 	
+				\STATE \hspace{-0.3cm} {\small 13:} \hspace{-0.05cm}  \hspace{0.75cm} \textbf{If} $\Phi^{i+1}_j > 1$ \textbf{do}
+				\STATE \hspace{-0.3cm} {\small 14:} \hspace{-0.05cm}  \hspace{1cm} 	\textbf{Return}  $P^{i+1}$
+				\STATE \hspace{-0.3cm} {\small 15:} \hspace{-0.05cm}  \hspace{0.75cm} \textbf{If} $\Phi^{i+1}_j>\Phi^\ast_j$ \textbf{do}
+				\STATE \hspace{-0.3cm} {\small 16:} \hspace{-0.05cm}  \hspace{1cm} 	$P^\ast_j=P^{i+1}_{j}$
+				\STATE \hspace{-0.3cm} {\small 17:} \hspace{-0.05cm}  \hspace{0.75cm} \textbf{If} $\Phi^{i+1}_j>\Phi^{i}_{\ast}$ \textbf{do}
+				\STATE \hspace{-0.3cm} {\small 18:} \hspace{-0.05cm}  \hspace{1cm} 	$P^{i+1}_\ast=P^{i+1}_j$
+				\STATE \hspace{-0.3cm} {\small 19:} \hspace{-0.05cm}  \hspace{0.1cm}	\textbf{EndFor}
+				\STATE \hspace{-0.3cm} {\small 20:} \hspace{-0.15cm}  \hspace{0.0cm}	\textbf{EndFor}
+				\STATE \hspace{-0.3cm} {\small 21:} \hspace{-0.15cm}  \hspace{0.0cm} \textbf{Return} $P^{pso}=P^U$
+			\end{algorithmic}
+		\end{small} 
+		\label{alg:alg3} 
+	\end{algorithm} 
+	
+	
+	\subsection{Pseudo Code of GAQA and Time Complexity Analysis}
+	The overview of the proposed algorithm GAQA is shown in Algorithm \ref{alg:alg2}. GAQA takes the inputs of clean image $x$, true label $y$, perturbation bound $\epsilon$, iteration number $N$, iteration number $\nu$ after finding 1st effective AE, and expects to generate a best perturbation for constructing adversarial example $x_{adv}$. GAQA initializes the perturbation population and search-related parameters (lines 1-3). Following the initialization, GAQA evolves to find the better perturbation solutions via GA-based main search iteration (lines 4-36). During the main searching procedure, GAQA first implements queries to the victim model, and calculate the fitness values of all perturbation solutions according to the feedback confidence values on prediction classes (lines 5-8). To select the current-best solution, GAQA will sort all solutions in the current population $P^i$ by the decrease fitness order of each solution $P^i_j$ (line 9). If the fitness of $P^i_1$ (the current best one) is greater than $1$ (line 10), meaning an effective AE is generated, GAQA will inherently resort to optimize the second objectives (attack evasiveness) by reset the number of iterations (line 11). After that, GAQA will conduct the superiority-related probabilistic selection on the current perturbation solutions (lines 12-15), wherein the inferior solutions will be deleted from the current generation (line 14). Before implementing the reproduction operations, the predicted number of iterations ($\beta$) is estimated according to Eq \ref{eq:steps} (line 16), and PSO-Jump is checked whether to be invoked by comparing $\beta$ to the predefined threshold $\Theta$ (lines 17-18). Note that PSO-Jump is described in the following paragraph. After the population selection, GAQA is going to reproduce the perturbation solutions for next searching generation (lines 19-31). GAQA will conduct perturbation-varied reproduction to generate a number ($\rho$) of new offspring for next generation (lines 20-23), and carries on block-based crossover (lines 24-27) and shuffle-based crossover (lines 29-31) to generate new solutions. Afterwards, GAQA will implement discrete mutation operator on these newly produced solutions (line 32-34). To improve the convergence, GAQA conducts the adaptation operation to update the reproduction-related parameters according to Eqs. 12-14 (line 35). After the main search iteration, GAQA will sort the final solutions by their fitness values, and return return the solution with best-so-far perturbation, i.e., the solution $P^N_1$ with greatest fitness (lines 37-38).
+	
+	
+	Algorithm \ref{alg:alg3} illustrates the procedure of PSO-Jump, which takes a set of perturbation particles ($P^{pso}$ and the number of iteration ($U$) as the input. According to the design of PSO jumping process in Section IV(G), PSO-Jump first sort the input to get the initially best perturbation in current generation (lines 1-2), then initiates the best solution for each particle $P^\ast_j$ with position $j$ (lines 3-5). For the evolving procedure, PSO-Jump will update the position of each particle for $U$ times (lines 6-20).  For each perturbation $P^i_j$, PSO-Jump will calculate $\nabla_1$ (perturbation related to current best solution) and $\nabla_2$ (perturbation related to previous best solution) to obtain the speed for next iteration (lines 8-10). Then PSO-Jump calculates the perturbation of $P^{i+1}_j$ according to  $V^{i+1}_j$ and $P^i_j$  (line 11). Afterwards, PSO-Jump will evaluate the fitness value $\Phi^i_j$, and check whether it is greater than $1$ (lines 12-14). PSO-Jump will terminate the PSO evolving when generating one effective AE. Otherwise, PSO-Jump continues the evolving procedure by updating $\Phi^\ast_j$ (lines 15-16) and  $\Phi^{i+1}_\ast$ by $\Phi^i_j$ (lines 17-18). PSO-Jump finally will return the updated perturbations $P^U$ to GAQA for GA-based evolution (line 21).
+	
+	\newtheorem{Theorem1}{Theorem} 
+	\begin{Theorem1} 
+		\textit{Given the dimension of input $dim(x)$, the number of label classes $l$, the iteration number $U$, the number of particles $W$, the time complexity of PSO-Jump is $O(UW \cdot dim(x))$.}
+		\label{Theorem1}
+	\end{Theorem1}
+	
+	\theoremstyle{nonumberplain}
+	\theorembodyfont{\normalfont}
+	\theoremsymbol{\mbox{$\Box$}}
+	\newtheorem{pr1}{Proof:}
+	\begin{pr1} 
+		According to the pseudo code of PSO-Jump, the main time overhead depends on the $U \times W$ iterations to calculate the speed $V^{i+1}_j$ and the perturbation $P^{i+1}_j$ for particle $P_j$, which takes time overhead of $O(dim(x))$. During each iteration, it also needs to update the best-so-far perturbation for particle $P_j$ and best perturbation in the current generation by querying the victim and calculate its fitness value. The time complexity of querying on victim model is related to be the dimension of clean image $x$, which can be denoted as $O(dim(x))$. To obtain the fitness value (see Eq. \ref{eq:fitness}), we need to sort the confidence values of $l$ labels (taking $O(l\cdot Log(l))$ and calculate the euclidean distance and mean convolution standard deviation of the AE (taking $O(dim(x))$). Consequently, PSO-Jump will take the time overhead of $O(U\cdot W \cdot [2 \times dim(x))+ O(l \cdot log(l)])$. Since $l$ is much less than $U$ and $W$, time complexity of PSO-Jump can be obtained as $O(UW\cdot dim(x))$.
+		\theoremsymbol{\mbox{$\Box$}}
+	\end{pr1}
+	
+	
+	%\newtheorem{Theorem2}{Theorem} 
+	\begin{Theorem1} 
+		\textit{Given the dimension of input $dim(x)$, the number of solutions in each generation $Q$, the number of GA iterations $N$, the number of iterations to optimize evasiveness $\nu$, the number of block-based crossovers $\eta$, the number of perturbation-varied reproductions $\rho$, GAQA's time complexity is $O((N+\nu)(Q^2+UW)\cdot dim(x))$.}
+		\label{Theorem2}
+	\end{Theorem1}
+	
+	\theoremstyle{nonumberplain}
+	\theorembodyfont{\normalfont}
+	\theoremsymbol{\mbox{$\Box$}}
+	\newtheorem{pr2}{Proof:}
+	\begin{pr2} 
+		
+		According to the procedure of GAQA, the time overhead consists of eight parts during the GA search framework. First, GAQA takes $O(Q \cdot dim(x))$ to initialize the perturbation population. Similar to Theorem 1, we can have the time cost of query evaluation as $O(Q\cdot dim(x))$. Probabilistic selection will only take $O(Q)$ time cost. Perturbation-varied reproduction is designed to generate $\rho$ new perturbations, thus it costs $O(\rho dim(x))$. Block-based crossover will generate $2\eta\cdot(\eta-1)$ new perturbations, which has the cost of $O(2\eta\cdot(\eta-1)dim(x))$. Shuffle-based crossover is proposed to generate $\frac{1}{2}Q$ new solutions, thus taking time cost as $O(\frac{1}{2}Q\cdot dim(x))$. Similarly, we can have the time cost of mutation operator as $O(Q\cdot dim(x))$. For easy observation, the time complexity of sub-component are listed in Table \ref{tab:ana}.
+		
+		The number of main iteration of GAQA is up to $N+\nu$, and PSO-Jump will be invoked during the main iteration when possibly reaching the threshold. $\eta$ and $\rho$ are limited to the number of population $Q$. Consequently, we can obtain $O(GAQA)$ as $O((N+\nu)[(Q+\rho+\eta^2)\cdot dim(x)+UW\cdot dim(x)])$,  which can be further reduced as: $O(GAQA)=(N+\nu)\cdot (Q^2 + UW)\cdot dim(x))$.
+		\theoremsymbol{\mbox{$\Box$}}
+	\end{pr2}
+	
+	
+	\begin{table}[!b]
+		\centering
+		\caption{Time Complexity of GAQA Components}
+		\begin{tabular}{cc}
+			\toprule
+			Component & \multicolumn{1}{c}{Time Complexity}  \\
+			\midrule
+			Initialize population   & \multicolumn{1}{c}{$O(Q\cdot dim(x))$}  \\
+			Query evaluation   & \multicolumn{1}{c}{$O(Q\cdot dim(x))$}  \\
+			Probabilistic selection   & \multicolumn{1}{c}{$O(Q)$}  \\
+			Perturbation-varied reproduction  & \multicolumn{1}{c}{$O(\rho \cdot dim(x))$}  \\
+			Block-based crossover  & \multicolumn{1}{c}{$O(2\eta\cdot(\eta-1)dim(x))$}  \\
+			Shuffle-based crossover   & \multicolumn{1}{c}{$O(\frac{1}{2}Q\cdot dim(x))$}  \\
+			Discrete mutation  & \multicolumn{1}{c}{$O(Q\cdot dim(x))$}  \\
+			Adaption   & \multicolumn{1}{c}{$O(1)$} \\
+			\bottomrule
+		\end{tabular}
+		\label{tab:ana}
+	\end{table}
+	
+	
+	
+	
+	\section{Experiment Evaluation} 
+	%check over
+	In this section, extensive experiments are conducted to evaluate the effectiveness of the proposed GAQA attacks son DNN models. All experiments were performed on an Intel(R) Xeon(R) Gold 5218 CPU@2.30GHz processor and eight NVIDIA GeForce RTX 3090 GPUs. 
+	First, the experimental setup is given in Section V(A). Second, ablation study is presented to demonstrate the efficiency of each step of our GAQA in Section V(B). 
+	%the performance metrics are explained in Section V-B.
+	We evaluate the effectiveness of the proposed method on defensive models and non-defensive models in Section V(C) and Section V(D).
+	
+	
+	
+	\subsection{Experiment Setup}
+	
+	\subsubsection{Dataset and neural network models}
+	We use three dataset including CIFAR-10, CIFAR-100 and ImageNet to evaluate the effectiveness of the proposed method on defensive models and non-defensive models. We choose Mlp-mixer \cite{tolstikhin2021mlpmixer}, Swim-transformer \cite{liu2021Swin} and ResNet \cite{he2016deep} as the non-defensive models. 
+	We choose seven defensive models based on WideResNet as the defensive models.% to test the proposed method. %UD, WDM and ODEs are based on CIFAR10. LTD and FDA are based on CIFAR100. FL and RAT are based on ImageNet. 
+	\begin{itemize}
+		\item Unlabeled Data (UD) \cite{carmon2022unlabeled} on CIFAR-10: using unlabeled data to bridge the sample complexity gap between standard and robust classification. 
+		\item Well Designed Model (WDM) \cite{huang2022exploring} on CIFAR-10: reducing capacity via depth or width at the deeper layers to improves adversarial robustness. 
+		\item Ordinary Differential Equations (ODEs) \cite{kang2021stable} on CIFAR-10: imposing constraints to ensure that all eigenvalues of the Jacobian matrix of the neural ODE layer have negative real parts, when each classification class converges to its own equilibrium points.
+		\item Low Temperature Distillation (LTD) \cite{chen2021ltd} on CIFAR-100: using the knowledge distillation framework to generate the desired soft labels. 
+		\item Fixing Data Augmentation (FDA) \cite{rebuffi2021fixing} on CIFAR-100: using generated examples to provide a greater diversity of augmentations that help enhance the image manifolds and allow adversarial training. 
+		\item Transfer Learning Model (TLM) \cite{salman2020adversarially} on ImageNet: using a less robust model with higher transfer training accuracy compared with standard-trained model.
+		\item Revisiting Adversarial Training (RAT) \cite{wong2020fast} on ImageNet: using a weaker and cheaper adversary by FGSM to train a defensive model with higher robust accuracy. 
+	\end{itemize}
+	
+	
+	\subsubsection{Comparative attack methods}
+	We compare the proposed method against five other attack approaches, i.e., APGD-CE \cite{croce2021mind}, ZOO \cite{croce2020minimally}, Square-Attack \cite{andriushchenko2020square}, DeepFool \cite{moosavi2016deepfool}, GenAttack \cite{alzantot2019genattack}. APGD-CE and DeepFool are white-box attack methods while ZOO, Square-Attack and GenAttack are black-box attack methods.
+	
+	
+	To make AE attacks imperceptible, according to Eq. \ref{eq:limts}, the perturbation bound $\epsilon$ must be limited. In the experiments, $\epsilon$ was set to $8/255$ on the CIFAR-10 and CIFAR-100 as \cite{wang2020mgaattack}, and $4/255$ on the ImageNet as \cite{croce2021robustbench}, respectively. The hyper-parameters of GAQA are automatically set by adaptive functions, as shown in TABLE \ref{tab:parameters}. 
+	
+	\begin{table}[t]
+		\centering
+		\caption{Hyper-parameters of GAQA}
+		\begin{tabular}{cccc}
+			\toprule
+			parameters & \multicolumn{1}{c}{CIFAR-10} & \multicolumn{1}{c}{CIFAR-100} & \multicolumn{1}{c}{ImageNet} \\
+			\midrule
+			$\Theta$ & 1000   & 1000   & 800 \\
+			$N$     & 1000  & 1000  & 800 \\
+			$Q$	 & 100    & 100    & 40 \\
+			$\rho$ & 10    & 10    & 5 \\
+			$C_1$    & 0.5   & 0.5   & 0.5 \\
+			$C_2$    & 0.5   & 0.5   & 0.5 \\
+			$U$ & 20    & 20    & 15 \\
+			$W$ & 10    & 10    & 5 \\
+			$\nu$ & 300    & 300    & 300 \\
+			\bottomrule
+		\end{tabular}%
+		\label{tab:parameters}
+	\end{table}
+	
+	\subsubsection{Performance metrics}
+	The effectiveness of attack methods is evaluated by seven metrics.
+	\begin{itemize}
+		\item Attack Successful Ratio (ASR): the ratio of incorrect classification in the input images. 
+		\item Median Queries (MQ):  the median query times in the three experiments.
+		\item Average Queries (AQ): the average query times in the three experiments.
+		\item Normalized Euclidean Distance (NED): the difference between the original images and the adversarial images.
+		\item Mean Convolution Standard Deviation (MCSD): the smoothness of a adversarial image.  
+		\item Coverage Ratio (CR): the coverage ratio between attack method A and B.  
+		\item Minimum Attack Set (MAS): the minority attack methods set which could cover other attack methods completely. %, and defender could use this set to check their model.
+	\end{itemize} 
+	
+	
+	
+	\subsection{Ablation study of our method} 
+	In this section, we conduct the ablation experiments to test the effectiveness of our method. For comparison, we valuate each operator of GAQA on the non-defensive model (WideResNet) and the defensive model (FDA). We start our experiments on the CIFAR-10 dataset with $L_\infty$ norm. 
+	
+	
+	\begin{table}[!b]
+		\setlength\tabcolsep{1pt}
+		\centering
+		\caption{Ablation study on each operator of GAQA}
+		\begin{tabular}{ccccc}
+			\toprule
+			\multirow{2}[4]{*}{Methods} & \multicolumn{2}{c}{WideResnet} & \multicolumn{2}{c}{FDA \cite{rebuffi2021fixing} } \\
+			\cmidrule(lr){2-3} \cmidrule(lr){4-5}           & ASR   & MQ    & ASR   & MQ \\
+			\midrule
+			GAQA without Initialize-population & 98.20\% & 12  & 27.65\% & 872 \\
+			GAQA without Probabilistic-selection & 98.94\% & 9  & 26.10\% & 529 \\
+			GAQA without PSO-Jump & 98.50\% & 10 & 24.00\% & 542 \\
+			GAQA without Block-based-crossover  & 97.40\% & 9   & 24.70\% & 544 \\
+			GAQA without Shuffle-based-crossover & 92.60\% & 59 & 13.60\% & 636 \\
+			GAQA without Perturbation-varied-reproduction& 96.70\% & 14  & 15.50\% & 557 \\
+			GAQA & \textbf{100.00\%} & 11  & \textbf{29.00\%}  & 612 \\
+			\bottomrule
+		\end{tabular}
+		\label{tab:vaild1}
+	\end{table}
+	
+	
+	\begin{figure}[t]
+		\flushleft  
+		\includegraphics[width=2.8in]{fitness.pdf}
+		\centering \caption{Our approach is attacking a defensive model. In this picture, including two PSO-jump process. The red line is the greatest fitness value of current chromosome set, the blue line is the estimated needs steps according to current tendency. When the estimated steps exceed the threshold, the iterative process of PSO will be performed. }
+		\label{fig:process}
+	\end{figure}
+	
+	The experimental results are shown in TABLE \ref{tab:vaild1}. In the non-defensive models, removing shuffle-based-crossover results in a 7.4\% reduction in ASR. Since the non-defensive models have many weaknesses, attack methods have fewer queries compared with attacking the defensive models. PSO-Jump, probabilistic-selection and block-based-crossover are used to decrease the query number, leading to a performance degradation on the non-defensive models. Due to the strong randomness of the shuffle-based-crossover, shuffle-based-crossover expands the width of the search scope instead of the depth of the scope. Therefore, this operator helps GAQA to find the adversarial examples quickly.
+	In the defensive models, removing the perturbation-varied-reproduction or shuffle-based-crossover can reduce ASR by more than a half, which indicates that the two operators have a powerful searching capacity. Removing the PSO-Jump will increase MQ and AQ. Moreover, removing the initialize-population will increase MQ by $45\%$ with a $4.7\%$ drop in ASR. Therefore, GAQA has a better attack capacity even in a poor start position, but it will take more steps to achieve the same performance.  
+	To sum up, removing any operator will lead to the drop of ASR in the non-defensive or defensive models, which demonstrates that each operator of GAQA plays a role in the searching process. 
+	
+	
+	
+	PSO-Jump process prevents GAQA from falling into trapping into the local optimum. Fig. \ref{fig:process} shows the PSO-Jump process of GAQA. We can observe that $\beta$ will exceed the $\Theta$ according to Eq. \ref{eq:steps} if the $\Phi$ grows slowly, and then GAQA will start PSO-Jump process to jump out of the current position. $\Phi$ is increased after the PSO-Jump process. Therefore, we can conclude that the PSO-Jump of our GAQA is effective.
+	
+	
+	
+	
+	\subsection{Attack comparison on defensive models}
+	In this section, we use three dataset to valuate the effectiveness of our method on defensive models compared with other five attack methods.
+	%\textcolor{red}{
+		%Owing to defensive model has more robustness under attacking, different attack method may has different attacked picture sequence, so we calculate the matrix of CR to evaluate coverage of methods and find the $MAS$ additionally. Because there are six attack methods, so the size of permutations of coverage matrix is $63 \times 63$, which can not be shown in this paper completely. We only show the matrix of one method to one method, and directly shown the minimum attack set.
+		%}
+	%			\textcolor{red}{Beside the three metrics we have mentioned before, we evaluate the additional two metrics for defensed model. The first is normalized $L_2$ euclidean distance (NED) and MCSD in Eq. \ref{eq:evasiveness}. We compare our attack to APGD-CE \cite{croce2021mind}, ZOO \cite{croce2020minimally}, Square Attack \cite{andriushchenko2020square}, DeepFool \cite{moosavi2016deepfool}, Genattack \cite{alzantot2019genattack}, It is worth noting that APGD-CE and DeepFool are white-box attack methods.}
+	
+	
+	
+	%\begin{figure*}[!b]
+	%	\centering
+	%	\subfigure[ ]{
+		%		\includegraphics[width=5cm]{carmon.pdf}
+		%		
+		%	}\subfigure[ ]{
+		%		\includegraphics[width=5.15cm]{huang.pdf}
+		%	}
+	%	\subfigure[ ]{
+		%		\includegraphics[width=5cm]{kang.pdf}
+		%	}
+	%	\caption{Experiment on different defense methods in CIFAR-10 dateset, (a) shows our method has greater attack success ratio in three different defense  method compared with black-box and white-box attack method in general, it proves that our approach has power searching performance. Meanwhile (b) and (c) indicates that, our method  has lower queries number compared with black-box attack method in the aspect of queries number, because white-box attack method  could use gradient information, our method has greater queries number than it. }
+	%	\label{fig:defense_cifar10}
+	%\end{figure*}
+	\subsubsection{CIFAR-10}
+	
+	\begin{table*}[t]
+		\centering
+		\caption{Attack comparison of defensive models on CIFAR-10}
+		\resizebox{\linewidth}{!}{  
+			
+			
+			\begin{tabular}{ccccrrcccrrcccrr}
+				\toprule
+				\multirow{2}[4]{*}{Methods} & \multicolumn{5}{c}{UD \cite{carmon2022unlabeled}}    & \multicolumn{5}{c}{WDM \cite{huang2022exploring} } & \multicolumn{5}{c}{ ODEs \cite{kang2021stable}} \\
+				\cmidrule(lr){2-6} \cmidrule(lr){7-11} \cmidrule(lr){12-16}          & ASR   & MQ    & AQ    & \multicolumn{1}{c}{NED} & \multicolumn{1}{c}{MCSD} & ASR   & MQ    & AQ    & \multicolumn{1}{c}{NED} & \multicolumn{1}{c}{MCSD} & ASR   & MQ    & AQ    & \multicolumn{1}{c}{NED} & \multicolumn{1}{c}{MCSD} \\
+				\cmidrule{1-16}  Ours  & \textbf{29.40\%} & 512   & 422   & \textbf{0.3254} & \textbf{0.1701} & \textbf{30.00\%} & 501   & 417   & \textbf{0.3485} & \textbf{0.1706} & \textbf{31.80\%} & 375   & 388   & \textbf{0.3030} & \textbf{0.1698} \\
+				APGD-CE \cite{croce2021mind} & 27.90\% & 158   & 165   & 0.5184  & 0.1738  & 15.80\% & 160   & 185   & 0.5016  & 0.1734  & 16.10\% & 182   & 177   & 0.3600  & 0.1714  \\
+				ZOO \cite{croce2020minimally}  & 28.20\% & 724   & 735   & 0.5309  & 0.1731  & 28.80\% & 636   & 755   & 0.5197  & 0.1726  & 19.90\% & 954   & 1073  & 0.4116  & 0.1881  \\
+				Square \cite{andriushchenko2020square} & 23.30\% & 3042  & 2570  & 0.4690  & 0.1727  & 23.60\% & 3203  & 3719  & 0.4632  & 0.1717  & 17.90\% & 3567  & 3422  & 0.4201  & 0.1704  \\
+				DeepFool \cite{moosavi2016deepfool} & 24.40\% & 40    & 39    & 0.8726  & 0.1733  & 23.50\% & 39    & 38    & 0.8878  & 0.1734  & 21.80\% & 453   & 497   & 0.6800  & 0.1760  \\
+				Genattack \cite{alzantot2019genattack} & 25.60\% & 916   & 913   & 0.6498  & 0.1763  & 25.50\% & 720   & 744   & 0.6501  & 0.1795  & 20.70\% & 722   & 697   & 0.6375  & 0.1843  \\
+				\bottomrule
+				
+				
+			\end{tabular}%
+		}
+		\label{tab:defense_cifar10}%
+	\end{table*}%
+	
+	
+	\begin{figure*}[t]
+		\centering
+		\subfigure[UD \cite{carmon2022unlabeled}]{
+			\includegraphics[width=5.5cm]{cr_carmon.pdf}
+			
+		}\subfigure[WDM \cite{huang2022exploring} ]{
+			\includegraphics[width=5.5cm]{cr_kang.pdf}
+		}
+		\subfigure[ODEs \cite{kang2021stable} ]{
+			\includegraphics[width=5.5cm]{cr_huang.pdf}
+		}
+		\caption{CR comparison of defensive models on CIFAR-10}
+		\label{fig:cr_cifar10}
+	\end{figure*}
+	
+	We chose UD \cite{carmon2022unlabeled}, WDM \cite{huang2022exploring}, ODEs \cite{kang2021stable} as the victim neural networks. The experimental results are shown in TABLE \ref{tab:defense_cifar10}. GAQA has achieved a $28.94\%$ increase in ASR, and respectively decreased AQ and MQ by $70.92\%$ and $69.21\%$, compared with the three black-box methods (ZOO, Square and GenAttack). GAQA has more queries than the two white-box methods (APGD-CE and DeepFool).
+	This is because the white-box attacks have the gradient information to modify the perturbation direction whereas our method explores the direction. However, the gradient information limits the searching scope, which makes the white-box methods trap into local optimum. Therefore, our approach has stronger searching capacity and higher ASR.
+	Since GAQA can generate better adversarial examples according to Eq. \ref{eq:evasiveness}, GAQA can reduce $29.21\%$, $27.77\%$, $33.19\%$, $59.97\%$ and $49.58\%$ in NED, respectively, compared with APGD-CE, ZOO, Square, DeepFool, and GenAttack in three defensive models. The smaller NED means that the adversarial examples generated by our method are more similar to the original images. The average MCSD of GAQA is $98.44\%$, $99.18\%$, $95.64\%$, $97.68\%$ and $94.51\%$
+	of those of APGD-CE, ZOO, Square, DeepFool, and GenAttack, respectively. Less MCSD means that our adversarial examples have less high frequency signals, which makes our method unlikely to be detected by identification modules or cleared by the compression modules.
+	
+	%\textcolor{blue}{Because our the second optimization objective, GAQA could generate higher . In the aspect of NED, GAQA has average $46.49\%$	,$42.36\%$ and $39.63\%$ reduction compared with other attack approach in three defensive models, it means, our adversarial examples are more similar to the original image. In the aspect of MCSD, GAQA has average $2.13\%$, $2.02\%$ and $4.67\%$ reduction compared with other attack approach in three defensive models, it means,  }
+	
+	The experimental results of CR on the three defensive models are shown in Fig. \ref{fig:cr_cifar10}. From Fig. \ref{fig:cr_cifar10}(a), we can observe that Gen GAQA has the smallest CR while other five attack methods have the similar CR. According to Fig. \ref{fig:cr_cifar10}(a), the MAS of the six attack methods is \emph{\{APGD-CE, GAQA\}}. Fig. \ref{fig:cr_cifar10}(b) shows that our GAQA has non-overlapping region with other five methods, which indicates that GAQA is irreplaceable.  For Fig. \ref{fig:cr_cifar10}(b), the MAS of the six attack methods is \emph{\{GAQA, APGD-CE, Square\}}. Fig. \ref{fig:cr_cifar10}(c) shows that GAQA has better CR compared with other five attack methods, and the MAS of the six attack methods is \emph{\{GAQA, ZOO\}}.
+	
+	
+	
+	\begin{table*}[t]
+		\centering
+		\caption{Attack comparison of defensive models on CIFAR-100}
+		\begin{tabular}{ccccrrcccrr}
+			\toprule
+			\multirow{2}[4]{*}{Methods} & \multicolumn{5}{c}{FDA \cite{rebuffi2021fixing}} & \multicolumn{5}{c}{LTD \cite{chen2021ltd}} \\
+			\cmidrule(lr){2-6}  \cmidrule(lr){7-11}        & \multicolumn{1}{l}{ASR} & \multicolumn{1}{l}{  MQ} & \multicolumn{1}{l}{AQ} & \multicolumn{1}{c}{NED} & \multicolumn{1}{c}{MCSD} & \multicolumn{1}{l}{ASR} & \multicolumn{1}{l}{MQ} & \multicolumn{1}{l}{AQ} & \multicolumn{1}{c}{NED} & \multicolumn{1}{c}{MCSD} \\
+			\midrule
+			Ours  & \textbf{45.70\%} & 701   & 570   & \textbf{0.3525} & \textbf{0.1725} & \textbf{49.60\%} & 297   & 307   & \textbf{0.3861} & \textbf{0.1765} \\
+			APGD-CE & 42.00\% & 103   & 95    & 0.4808  & 0.1771  & 45.60\% & 100   & 88    & 0.5146  & 0.1766  \\
+			Square & 38.80\% & 1833  & 2083  & 0.4841  & 0.1773  & 44.40\% & 1674  & 1690  & 0.5248  & 0.1772  \\
+			ZOO   & 35.70\% & 1483  & 1547  & 0.3804  & 0.1768  & 41.70\% & 734   & 783   & 0.4757  & 0.1770  \\
+			DeepFool & 44.10\% & 54    & 51    & 0.6408  & 0.1776  & 48.80\% & 53    & 48    & 0.6187  & 0.1769  \\
+			Genattack & 41.50\% & 1360  & 1153  & 0.6232  & 0.1794  & 42.40\% & 649   & 661   & 0.6233  & 0.1775  \\
+			\bottomrule
+		\end{tabular}%
+		\label{tab:cifar100-defense}%
+	\end{table*}%
+	
+	\subsubsection{CIFAR-100}
+	We choose LTD \cite{chen2021ltd} and FDA \cite{rebuffi2021fixing} as the victim neural networks. TABLE \ref{tab:cifar100-defense} shows the experimental results.
+	Our method achieves a $20.85\%$ increase in ASR and respectively decreases AQ and MQ by $64.45\%$ and $60.06\%$ compared with the three black-box methods. 
+	Our method has average $25.80\%$, $26.79\%$, $13.72\%$, $41.36\%$ and $40.75\%$ reduction in NED, respectively, compared with APGD-CE, ZOO, Square, DeepFool, and GenAttack. The average MCSD of GAQA is  $98.69\%$, $98.47\%$, $98.67\%$, $98.47\%$ and $97.78\%$ of those of APGD-CE, ZOO, Square, DeepFool, and GenAttack, respectively. 
+	
+	Fig. \ref{fig:cr_cifar100} shows the CR results on the two defensive models.  From Fig. \ref{fig:cr_cifar100}(a), we can observe that Genattack has the smallest CR among the six attack methods, which may be because it has no adaptive function and well-designed reproduction process. From Fig. \ref{fig:cr_cifar100}(b), we observe that other methods have lower CR than our GAQA, which means that our method is irreplaceable. According to Fig. \ref{fig:cr_cifar100}, the MASs of the two defensive models are both \emph{\{GAQA, APGD-CE\}}. 
+	
+	\begin{figure}[t]
+		\centering
+		\subfigure[ ]{
+			\includegraphics[width=4cm]{cr_chen.pdf}
+			
+		}\subfigure[ ]{
+			\includegraphics[width=4cm]{cr_rebuff.pdf}
+		}
+		
+		\caption{CR comparison of defensive models on CIFAR-100 }
+		\label{fig:cr_cifar100}
+	\end{figure}
+	
+	
+	
+	
+	
+	\subsubsection{ImageNet}
+	we choose TLM \cite{salman2020adversarially} and RAT \cite{wong2020fast} as the victim models. TABLE \ref{tab:ImageNet-defense} shows the experimental results. Compared with other five attack methods, our method achieves $46.58\%$ and $48.17\%$  decrease in AQ and MQ, respectively. Compared with the black-box methods, our method has $55.58\%$ increase in ASR. Our method has average $35.07\%$, $13.11\%$, $37.88\%$, $48.52\%$ and $48.07\%$ reduction in NED, respectively, compared with APGD-CE, ZOO, Square, DeepFool and GenAttack. The average MCSD of GAQA is $93.79\%$, $96.97\%$, $96.72\%$, $90.14\%$ and $94.81\%$ of those of APGD-CE, ZOO, Square, DeepFool, and GenAttack, which means that our GAQA has a great evasiveness on the big-scale datasets. 
+	
+	\begin{table*}[t]
+		\centering
+		\caption{Attack comparison of defensive models on ImageNet}
+		\begin{tabular}{ccccrrcccrr}
+			\toprule
+			\multirow{2}[4]{*}{Methods} & \multicolumn{5}{c}{TLM \cite{salman2020adversarially}} & \multicolumn{5}{c}{RAT \cite{wong2020fast}} \\
+			\cmidrule(lr){2-6}  \cmidrule(lr){7-11}          & \multicolumn{1}{l}{ASR} & \multicolumn{1}{l}{MQ} & \multicolumn{1}{l}{AQ} & \multicolumn{1}{c}{NED} & \multicolumn{1}{c}{MCSD} & \multicolumn{1}{l}{ASR} & \multicolumn{1}{l}{MQ} & \multicolumn{1}{l}{AQ} & \multicolumn{1}{c}{NED} & \multicolumn{1}{c}{MCSD} \\
+			\midrule
+			Ours  & \textbf{38.90\%} & 742   & 873   & \textbf{0.3386} & \textbf{0.1015} & \textbf{53.00\%} & 501   & 430   & \textbf{0.3068} & \textbf{0.1002} \\
+			APGD-CE & 35.90\% & 118   & 124   & 0.5293  & 0.1042  & 42.00\% & 85    & 88    & 0.4646  & 0.1109  \\
+			Square & 13.50\% & 2051  & 1929  & 0.3694  & 0.1031  & 22.00\% & 1401  & 1243  & 0.3733  & 0.1049  \\
+			ZOO   & 19.50\% & 1044  & 882   & 0.5623  & 0.1067  & 19.00\% & 803   & 957   & 0.4766  & 0.1018  \\
+			DeepFool & 34.40\% & 63    & 55    & 0.7058  & 0.1141  & 38.00\% & 55    & 58    & 0.5478  & 0.1097  \\
+			Genattack & 24.50\% & 899   & 838   & 0.6244  & 0.1037  & 26.00\% & 931   & 832   & 0.6183  & 0.1090  \\
+			\bottomrule
+		\end{tabular}%
+		\label{tab:ImageNet-defense}%
+	\end{table*}%
+	
+	The CR results are shown in Fig. \ref{fig:cr_ImageNet}. The six attack methods can be divided into three types: GAQA, Genattack and others. The ASRs of all three types have no overlap, which may be because the bigger scale datasets have the larger search spaces. From Fig(a) and Fig(b), the MAS of the two defensive models are both \emph{\{GAQA, APGD-CE\}}.
+	
+	
+	To sum up, our method achieves good performance on the defensive models according to the experimental results on CIFAR-10, CIFAR-100 and ImageNet. Our GAQA has high ASR and few queries compared with other five attack methods. We can conclude that our GAQA is suitable to check the robustness of neural networks. 
+	
+	\begin{figure}[t]
+		\centering
+		\subfigure[ ]{
+			\includegraphics[width=4.cm]{cr_salman.pdf}
+			
+		}\subfigure[ ]{
+			\includegraphics[width=4.cm]{cr_wong.pdf}
+		}
+		\caption{CR comparison of defensive models on ImageNet}
+		\label{fig:cr_ImageNet}
+	\end{figure}
+	
+	
+	
+	\begin{figure*}[t]
+		\centering
+		\subfigure[ ]{
+			\includegraphics[width=5cm]{resnet.pdf}
+			
+		}\subfigure[ ]{
+			\includegraphics[width=5cm]{swim.pdf}
+		}
+		\subfigure[ ]{
+			\includegraphics[width=5cm]{mlp.pdf}
+		}
+		\caption{Non-defensive model comparison on different neural network architectures} 
+		\label{fig:structure}
+	\end{figure*}
+	
+	
+	%		\begin{table}[t]
+		%		\centering
+		%	\caption{Attacks on non-defense model, ImageNet dateset and WideResnet architect.}
+		%		\begin{tabular}{ccccccc}
+			%			\toprule
+			%			\multirow{2}[4]{*}{Methods} & \multicolumn{3}{c}{L2} & \multicolumn{3}{c}{INF} \\
+			%		\cmidrule(lr){2-4} \cmidrule(lr){5-7}           & \multicolumn{1}{l}{ASR} & \multicolumn{1}{l}{MQ} & \multicolumn{1}{l}{AQ} & \multicolumn{1}{l}{ASR} & \multicolumn{1}{l}{MQ} & \multicolumn{1}{l}{AQ} \\
+			%			\midrule
+			%			Ours  & \textbf{100\%} & 15    & 15.9  & \textbf{100\%} & 11.5  & 11.4 \\
+			%			APGD-CE & 99.40\% & 51    & 45.3  & \textbf{100.00\%} & 59.8  & 64.2 \\
+			%			Square & 99.00\% & 193   & 176.8 & 99.00\% & 236.8 & 251.5 \\
+			%			ZOO   & \textbf{100\%} & 104   & 102.7 & \textbf{100\%} & 118.5 & 127.2 \\
+			%			DeepFool & 96.00\% & 90    & 107.6 & 97.00\% & 110   & 109.6 \\
+			%			Genattack & 99\%  & 36    & 37    & 98\%  & 31    & 25.8 \\
+			%			\bottomrule
+			%		\end{tabular}
+		%	\label{tab:cifar10-norm}
+		%	\end{table}
+	
+	\begin{figure*}[t]
+		\centering
+		\subfigure[ ]{
+			\includegraphics[width=5.15cm]{norm_RA.pdf}
+			
+		}\subfigure[ ]{
+			\includegraphics[width=5cm]{norm_MQ.pdf}
+		}
+		\subfigure[ ]{
+			\includegraphics[width=5cm]{norm_AQ.pdf}
+		}
+		\caption{Non-defensive model comparison on different $L$ norm }
+		\label{fig:cifar10-norm}
+	\end{figure*}	
+	
+	\begin{figure*}[t]
+		\centering
+		\subfigure[ ]{
+			\includegraphics[width=5cm]{RA.pdf}
+			
+		}\subfigure[ ]{
+			\includegraphics[width=5cm]{MQ.pdf}
+		}
+		\subfigure[ ]{
+			\includegraphics[width=5cm]{AQ.pdf}	
+		}
+		
+		\caption{Non-defensive model comparison on different datasets}
+		\label{fig:dataset}
+	\end{figure*}
+	
+	\subsection{Attack comparison on non-defensive models}
+	
+	In this section, we valuate the effectiveness of our method on the non-defensive models from three perspectives: neural network architecture, $L$ norm and dataset. We compare ASR, MQ and AQ with other five attack methods, since NED, MCSD, CR and MAS are designed for the defensive models. 
+	
+	\subsubsection{Neural network architecture}
+	
+	We choose different neural network architectures including Mlp-mixer \cite{tolstikhin2021mlpmixer}, Swim-transformer \cite{liu2021Swin} and ResNet \cite{he2016deep} to test the effectiveness of our method on the non-defensive models on ImageNet with $L_\infty$ norm. 
+	Mlp-mixer is a traditional neural network, which consists of an input layer, several hidden layers and an output layer. Swim-transformer is a new neural network based on the NLP transformer. ResNet is a widely used neural network, which contains identity short-cut connections. 
+	We can illustrate that our method is suitable for different neural network architectures through these three neural networks. 
+	Fig. \ref{fig:structure} shows the ASR, MQ and AQ comparisons on different nerual network architectures. The two white-box attack methods (APGD-CE and DeepFool) and our method can achieve $100\%$ ASR. The three black-box attack methods (ZOO, Square and GenAttack) and our method have higher MQ and AQ, since they need to estimate the evolution direction through the query model. Compared with the three black-box attack methods, our method has greater ASR and lower MQ. 
+	Although Genattack is a genetic algorithm, it has poor performance. It may be because that Genattack has no jump operator and adaptive process. 
+	Therefore, our method has greater ASR and lower MQ on different neural network architectures.
+	
+	
+	\subsubsection{$L$ norm}
+	We chose $L_\infty$ and $L_2$ norm to evaluate the effectiveness of our method on CIFAR-10 with ResNet.
+	Fig \ref{fig:cifar10-norm} shows the ASR, MQ and AQ comparisons on different $L$ norm. APGD-CE, ZOO and our method can reach almost $100\%$ ASR. Genattack and our method have lower MQ compared with ZOO and Square, which indicates that genetic algorithms with well-designed operators have better performance on different $L$ norm.
+	
+	\subsubsection{Dataset}
+	We use CIFAR-10, CIFAR-100 and ImageNet to test evaluate the effectiveness of our method on ResNet with $L_\infty$ norm. 			
+	Fig. \ref{fig:dataset} shows the ASR, MQ and AQ comparisons on different datasets. Our method has more MQ and AQ on the large-size datasets. Due to the bigger search space of the large-size images, our method needs more queries to estimate the evolving direction. 
+	However, our GAQA has fewer queries compared with the three black-box attack methods. The ASR of the three black-box attack methods on ImageNet are lower than those on CIFAR-10 and CIFAR-100 whereas our method has a better ASR on CIFAR-10, CIFAR-100 and ImageNet. It indicates that our method with well-designed operators has a strong searching capacity in vast space. 
+	
+	
+	To sum up, our method achieves better performance on the non-defensive models according to the experimental results of different neural network architectures, $L$ norm and datasets, which demonstrates that our method is suitable for different situations. Meanwhile, our approach has the same ASR with the white-box attack methods while our method has lower queries compared with other black-box attack methods.
+	
+	\section{Conclusion and Future Work}
+	In this paper, we have made efforts to generate adversarial examples for defensive DNN models deployed in the image-related intelligent systems. To facilitate the attack in practice, we presented a query-efficient black-box method, named GAQA, to generate adversarial examples. To successfully attack defensive DNNs, the attack methods need to achieve high values for three objectives, i.e., attack effectiveness, attack evasiveness and attack coverage. Consequently, the generation of adversarial examples for defensive models is formulated to a multi-objective optimization problem, and GA-based searching framework is proposed to find the best perturbation for adversarial example generation. Different to traditional GA, adversarial example-specific reproduction operators are well designed to improve search efficiency of GAQA. Moreover, the adaptation of search-related parameters can help to speed up the search convergence, while PSO-based jumping component is implemented to escape the situation of local optimum search. We have conducted to extensive experiments to evaluate the efficiency of our method. In case of non-defensive models, our method can successfully attack state-of-the-art network architectures including Mlp-mixper and Swim-Transformer. In case of defensive models, experiments demonstrate that our method can increase the attack success ratio by averagely 20\% while obtaining a $50\%$ decrease in the number of queries. 
+	
+	As the future work, it is worthy of doing the following researches. Since this paper only considers to generate adversarial examples for images of general size, it would be a challenging work to extend our searching framework to support the generation of adversarial examples for super large images. We also plan to extend our work to implement adversarial attacks on other applications like audio and 3D-image reorganizations. From the view of defense, it would be interesting to find the weakness of the deployed models using our method, and then fix the vulnerability to enhance the model robustness.  
+	%\balance
+	%\bibliographystyle{IEEEtran}
+	\bibliography{IEEEabrv,cite}
+	\vfill
+	
+\end{document}
+
+
