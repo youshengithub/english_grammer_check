@@ -8,7 +8,6 @@ def analyze_sentence(sentence):
     stdout, stderr = process.communicate(sentence)
     # 分析输出（这部分需要你根据你的需求来编写）
     if 'No complete linkages found.' in stdout:
-
         return False
     return True
 def replace_words(text):
@@ -16,6 +15,7 @@ def replace_words(text):
     text = text.replace('Eq', 'equation')
     # 将Fig替换为figure
     text = text.replace('Fig', 'figure')
+    text = text.replace('\n', '')
     return text
 def replace_percentage(text):
     # 使用正则表达式匹配 xx.xx% 或 xx%
@@ -79,17 +79,14 @@ def handle_file(file_name):
     for sentence in tqdm.tqdm(sentences):
         sentence=sentence[:-1]
         ignore=False
+        fails=False
         if(sentence in line_list or sentence in success_list):
             ignore=True
-            continue
-        if(sentence in fail_list):
-            ignore=True
-            wrong_number+=1
-            continue
-        if(ignore==True):
             tqdm.tqdm.write(f'Ignore: {sentence}')
             continue
-        if(analyze_sentence(sentence)==False):
+        if(sentence in fail_list):
+            fails=True
+        if(fails==True or analyze_sentence(sentence)==False):
             wrong_number+=1
             tqdm.tqdm.write(f'Error in sentence: {sentence}')
             ans+=f'Error in sentence: {sentence}\n'
