@@ -14,9 +14,7 @@ def analyze_sentence(sentence):
             ana=i
     # 分析输出（这部分需要你根据你的需求来编写）
     if 'No complete linkages found.' in stdout:
-        return sentence,False,ana
-
-        
+        return sentence,False,ana 
     return sentence,True,ana
 def replace_words(text):
     # 将Eq替换为equation
@@ -35,7 +33,6 @@ def remove_brackets(text):
     # 使用正则表达式匹配 (xxx)，然后替换为空字符串
     result = re.sub(r'\([^)]*\)', '', text)
     return result
-
 def remove_citations(text):
     # 使用正则表达式匹配 \cite{xxx}，然后替换为空字符串
     result = re.sub(r'\\cite\{[^}]*\}', '', text)
@@ -56,14 +53,12 @@ def process_latex_file(file_path):
     sentences = re.findall(r'([A-Z][^\\}\{.]*\.\s)', content)
     return sentences
 def load_config(file_name):
-    
+    if not os.path.exists(file_name):  return set()
     with open(file_name, 'r') as f:
-        # 读取所有行，每一行作为列表的一个元素
         lines = f.readlines()
     line_set=set()
     for line in lines:
         line_set.add(line.strip())  # 使用 strip() 方法移除每行末尾的换行符
-        #print(line.strip())
     print("所有",file_name,"已经被载入")
     return line_set
 def write_config(success_list,file_name):
@@ -73,15 +68,11 @@ def write_config(success_list,file_name):
     with open(file_name, 'w') as f:
         f.write(succ)
 def handle_file(file_name):
-    # 打开文件
     line_list=load_config("ignore.txt")
     success_list=load_config("success.txt")
-    if not os.path.exists('fail.pkl'):
-        fail_dict={}
+    if not os.path.exists('fail.pkl'):  fail_dict={}
     else:
-
         fail_dict = pickle.load(open('fail.pkl', 'rb+') )
-    # 测试
     sentences = process_latex_file(file_name)
     wrong_number=0
     ans=""
@@ -94,34 +85,27 @@ def handle_file(file_name):
             ignore=True
             continue
         if(sentence in fail_dict):
-            ans+=fail_dict[sentence][10:]+"\n"
+            ans+=sentence+"\n"+fail_dict[sentence][10:]+"\n\n"
             wrong_number+=1
             fails=True
             continue
         needs_calc.append(sentence)
-
-    # with ThreadPoolExecutor() as executor:
-    #     result_list = list(executor.map(analyze_sentence, needs_calc))
-    # 创建一个进度条，总任务数等于列表长度
-    with concurrent.futures.ThreadPoolExecutor() as executor, tqdm(total=len(needs_calc)) as pbar:
-        future_to_i = {executor.submit(analyze_sentence, i): i for i in needs_calc}
-        
-        result_list = []
-        for future in concurrent.futures.as_completed(future_to_i):
-            i = future_to_i[future]
-            result = future.result()
-            result_list.append(result)
-            # 每当一个未来（future）完成，更新进度条
-            pbar.update(1)
-        
-        
-    for sentence,flag,info in result_list:
-        if(flag==True):
-            success_list.add(sentence)
-        else:
-            wrong_number+=1
-            fail_dict[sentence]=info
-            ans+=info[10:]+"\n"
+    if(len(needs_calc)>0):
+        with concurrent.futures.ThreadPoolExecutor() as executor, tqdm(total=len(needs_calc)) as pbar:
+            future_to_i = {executor.submit(analyze_sentence, i): i for i in needs_calc}
+            result_list = []
+            for future in concurrent.futures.as_completed(future_to_i):
+                i = future_to_i[future]
+                result = future.result()
+                result_list.append(result)
+                pbar.update(1)
+        for sentence,flag,info in result_list:
+            if(flag==True):
+                success_list.add(sentence)
+            else:
+                wrong_number+=1
+                fail_dict[sentence]=info
+                ans+=sentence+"\n"+info[10:]+"\n"
     print("识别的句子总数:",len(sentences),"错误率:",wrong_number/len(sentences))
     with open("Ana_"+file_name+".txt", 'w') as f:  f.write(ans)
     with open('fail.pkl', 'wb') as file: pickle.dump(fail_dict, file)
@@ -130,8 +114,5 @@ def handle_file(file_name):
 processes = []
 for i in sys.argv[1:]:
     handle_file(i)
-    # new_process = multiprocessing.Process(target=handle_file, args=(i,))
-    # new_process.start()
-    # processes.append(new_process)
 for process in processes:
     process.join()
