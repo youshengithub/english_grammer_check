@@ -1,302 +1,303 @@
-Less MCSD means that our adversarial examples have less high frequency signals, which makes our method unlikely to be detected by identification modules or cleared by the compression modules.
-Different to existing works, in this paper we are interested in the generation of AEs for DNNs with defensive mechanisms.
-This is reasonable since white-box attacks need to know the detail information of model architecture, model parameters and training data of the victim DNN models.
-In Section V, extensive experiments are conducted to evaluate the performance of proposed method.
-ASR, MQ and AQ comparisons on different datasets.
-Compared with current black-box methods, GAQA can effectively generate optimal perturbations on images and significantly decrease the number of queries to the victim model.
-In general, evolutionary operators of selection, crossover and mutation are utilized to breed the next-generation population.
-Due to the inherent characteristics of gradient-free and adaptive query, we only need to deal with detection-based defensive mechanisms based on input transformation while ignoring the defensive mechanisms of adversarial training and gradient masking.
-In this section, extensive experiments are conducted to evaluate the effectiveness of the proposed GAQA attacks son DNN models.
-During the searching iteration, the parameters related reproduction operators need to be updated.
-Due to high time overhead to find the optimal Theta for each solution Theta, we choose to search for the near-optimal Theta only for Theta in each generation, thus reducing the complexity of the query process.
-Due to the bigger search space of the large-size images, our method needs more queries to estimate the evolving direction.
-Consequently, PSO-Jump will take the time overhead of Theta.
-The average MCSD of GAQA is Theta, Theta, Theta, Theta and Theta of those of APGD-CE, ZOO, Square, DeepFool, and GenAttack, which means that our GAQA has a great evasiveness on the big-scale datasets.
-To implement white-box attacks, the adversarial attackers are assumed to know the full knowledge of model architecture, model parameters and training data of the victim DNN models.
-In addition to the strong ability of model prediction, we assume the victim DNN models are deployed with certain defensive protections to ensure their robust to adversarial attacks.
-In this section, we conduct the ablation experiments to test the effectiveness of our method.
-The average MCSD of GAQA is  Theta, Theta, Theta, Theta and Theta of those of APGD-CE, ZOO, Square, DeepFool, and GenAttack, respectively.
-The DNN model Theta is trained based on the training data set with Theta labeled inputs Theta, where Theta is an input instance and Theta is its ground-truth class label.
-Although white-box attacks have been evaluated successful, they cannot achieve high attack performance in practical applications where the information of victim models and training data are definitely not disclosed to the adversarial attackers.
-Since Theta is much less than Theta and Theta, time complexity of PSO-Jump can be obtained as Theta.
-The three black-box attack methods  and our method have higher MQ and AQ, since they need to estimate the evolution direction through the query model.
-GM is also cost-expensive and not suitable for black-box attacks.
-Minimum Attack Set : the minority attack methods set which could cover other attack methods completely.
-Specifically, the calculation of Theta can be referred to equation.
-Revisiting Adversarial Training   on ImageNet: using a weaker and cheaper adversary by FGSM to train a defensive model with higher robust accuracy.
-PSO is designed to an iterative searching algorithm by imitating the food-finding process of a flock of birds.
-Based on the predicted Theta, Theta can be calculated by the following equation.
-Given a clean image, the corresponding AE depends on the perturbation on each pixel of the image.
-ResNet is a widely used neural network, which contains identity short-cut connections.
-Meanwhile, our approach has the same ASR with the white-box attack methods while our method has lower queries compared with other black-box attack methods.
-To guide the searching direction of GAQA, a fitness function should be designed to evaluate the quality of each solution.
-PSO-Jump, probabilistic-selection and block-based-crossover are used to decrease the query number, leading to a performance degradation on the non-defensive models.
-GAQA is designed to pick up certain top perturbations  for reassembling operations.
-Benchmark-based experiments on CIFAR-10, CIFAR-100 and ImageNet-1K are conducted to evaluate the efficiency of our method in both defensive and non-defensive scenarios.
-In Stage , new solutions  will be generated via Reproduction operators including Perturbation-varied reproduction, Block-based crossover, and Shuffle-based crossover.
-APGD-CE and DeepFool are white-box attack methods while ZOO, Square-Attack and GenAttack are black-box attack methods.
-According to the pseudo code of PSO-Jump, the main time overhead depends on the Theta iterations to calculate the speed Theta and the perturbation Theta for particle Theta, which takes time overhead of Theta.
-Based on the evolution matrix for the first three generations, the solutions of 4th generation can be produced.
-Our method has average Theta, Theta, Theta, Theta and Theta reduction in NED, respectively, compared with APGD-CE, ZOO, Square, DeepFool and GenAttack.
-The adversaries have the right of accessing to DNNs, and mostly exploit back-propagation methods to obtain the gradient information of DNN models, thus generating white-box AEs to threaten the victim models.
-Theta is the best solution  of the Theta-indexed solutions for the first Theta iterations.
-Then PSO-Jump calculates the perturbation of Theta according to  Theta and Theta  .
-Given the benign input Theta with the class label as Theta, the perturbed Theta is defined as an AE if misclassified to the label Theta.
-Our method has average Theta, Theta, Theta, Theta and Theta reduction in NED, respectively, compared with APGD-CE, ZOO, Square, DeepFool, and GenAttack.
-To improve the convergence, GAQA conducts the adaptation operation to update the reproduction-related parameters according to equations.
-For instance, the produce of Theta depends on the solution Theta in the position Theta of 3rd generation and the speed Theta according to equation.
-After that, GAQA will conduct the superiority-related probabilistic selection on the current perturbation solutions , wherein the inferior solutions will be deleted from the current generation .
-PSO-Jump will terminate the PSO evolving when generating one effective AE.
-APGD-CE , ZOO , Square-Attack , DeepFool , GenAttack .
-The effectiveness of attack methods is evaluated by seven metrics.
-The experiment indicates that genetic algorithm has a strong searching capacity.
-PSO for our AE search problem.
-As a prominent branch of AE attacks, a great number of white-box attacks have been developed .
-Assume that the defenders know the model structure and can deconstruct the DNN model to get the weight parameters.
-GAQA can reduce Theta, Theta, Theta, Theta and Theta in NED, respectively, compared with APGD-CE, ZOO, Square, DeepFool, and GenAttack in three defensive models.
-As a supplementary work, this paper approaches to implement black-box AE attacks on defensive DNN models deployed in servers like MLaaS.
-In other words, the requirement satisfied adversarial example can not be generated even with high time overhead.
-Considering a complex DNN Theta  with numerous parameters, it has a powerful  ability to fit the input signal.
-UD, WDM and ODEs are based on CIFAR10.
-We define Theta as mean convolution standard deviation to evaluate the high frequency signals of AE, which calculates the standard deviation of a pixel point and its eight adjacent points.
-Section presents the threat model and formulate the design to a multi-objective optimization problem.
-Query stage, the adversarial examples  are feed to the victim model to get the corresponding confidence values of prediction classes.
-Then, we assign a filter probability for each solution.
-GAQA initializes the perturbation population and search-related parameters .
-Following that, BIM   is further designed to generate better AEs by iteratively using FGSM.
-For the situation of successful AE attack, the value of the first part is fixed to  Theta according to the Theta operation on it.
-Note that PSO-Jump is described in the following paragraph.
-PSO-Jump finally will return the updated perturbations Theta to GAQA for GA-based evolution .
-It would be good policy to produce new offspring  in the direction of perturbation-direction of input data.
-Based on the prediction of searching iterations, we introduce predication-based adaptation for reproduction-related parameters to speed up the search convergence, and design PSO-based jump to avoid the search stuck at local optimum.
-In Section IV, the detailed design of query-efficient GA attack is given.
-To sum up, our method achieves good performance on the defensive models according to the experimental results on CIFAR-10, CIFAR-100 and ImageNet.
-Average Queries : the average query times in the three experiments.
-Training high-dimensional data require larger models.
-Probabilistic selection will only take Theta time cost.
-Median Queries :  the median query times in the three experiments.
-Defenders  usually use white-box attack methods to generate adversarial examples because they have access to the parameters and structure of their model.
-Adversarial example recognition relies on two networks: identification and elimination  model.
-In addition, we use the 0-1 matrix Theta to represent the gene-shuffling selection of each selected father chromosome, where each element Theta of Theta  is set to 1 with the probability of Theta.
-Well-designed evolutionary algorithms have been used for image generation , image classification   and neural architecture search .
-However, the research to generate AEs using evolutionary algorithms is seriously overlooked for defensive DNNs.
-Therefore, GAQA has a better attack capacity even in a poor start position, but it will take more steps to achieve the same performance.
-Theta is the dimension of input Theta, Theta is the bound of Theta-norm to escape human perception.
-The better Theta of offspring will be remained after superiority-driven probabilistic selection.
-For example, given Theta as Theta, the expected number of chosen chromosomes can be calculated to be Theta for the population with Theta solutions.
-Along with the fast development of AE attacks, the robustness of DNNs has received increasing concerns.
-With the purpose of alleviating the vulnerability to AE attacks, certain mechanisms are emerging to improve the defensive performance of DNNs including AE detection and recognition , adversarial training of DNNs  and image compression  in the image domain.
-PSO address the optimization problem by simultaneously moving the particles in the searching space based on the corresponding fitness values.
-Theta decrease in the number of queries.
-Jumping process  will further used to generate non-local optimal solutions when the number of iterations reaches at the predefined threshold Theta.
-It may be because that Genattack has no jump operator and adaptive process.
-Consequently, we define the fitness  of each perturbation solution by equation.
-Update adaptive parameters Theta, Theta, Theta via equation.
-GAQA has achieved a Theta increase in ASR, and respectively decreased AQ and MQ by Theta and Theta, compared with the three black-box methods .
-Section II describes preliminaries work.
-For any point Theta, it satisfies equation.
-We choose LTD  and FDA  as the victim neural networks.
-The original training dataset is unknown to defenders, meaning that the defense strategy cannot be designed from the perceptive of the dataset.
-Although we have introduced certain mechanisms to avoid the searching into local optimal space, there still has the possibility to fall into the local optimum after a large number of evolving iterations.
-For simplicity, we calculate them with the same following equation.
-However, our GAQA has fewer queries compared with the three black-box attack methods.
-FL and RAT are based on ImageNet.
-CR results on the two defensive models.
-Initiate the perturbation solutions Theta via equation.
-Theta and Theta are limited to the number of population Theta.
-The two white-box attack methods  and our method can achieve Theta ASR.
-Theta represents the existing attack methods.
-Since the non-defensive models have many weaknesses, attack methods have fewer queries compared with attacking the defensive models.
-Since this paper only considers to generate adversarial examples for images of general size, it would be a challenging work to extend our searching framework to support the generation of adversarial examples for super large images.
-We assume Theta as the Theta-th solution in Theta-th generation and  Theta as the Theta-th solution in Theta-th generation.
-We start our experiments on the CIFAR-10 dataset with Theta norm.
-The six attack methods can be divided into three types: GAQA, Genattack and others.
-Although Genattack is a genetic algorithm, it has poor performance.
-ASR.
-Theta determine the granularity of perturbation discretization, and it will be adaptively changed in the search iteration.
-The newly generated solution Theta in Theta-th iteration is related to the solution Theta and its moving speed , which is formally expressed by equation.
-In this paper, we propose the elites-preferred probabilistic selection to choose solutions for the coming iterations in our GAQA.
-In other words, the objective of attack evasiveness needs to be improved only if the AE attack is effective.
-In contrast to white-box attack, black-box attack has a wider search space because it has no knowledge of the specific distribution of the high-dimensional space.
-Theta, Theta or Theta.
-Therefore, it is practical to set a threshold  for the intolerable searching iterations.
-Removing the PSO-Jump will increase MQ and AQ.
-Theta is designed to decrease with the increase of Theta to guarantee the high probability to select elite solutions, as shown in equation.
-Theta is related to the speed Theta in 3rd generation, the best-so-far perturbation for the first particle , and the best perturbation in the 3rd generation .
-With the updates of searching parameters, GAQA can adaptively work during the searching iterations and consequently quickly converge to find the near-optimal global solutions.
-GAQA has more queries than the two white-box methods .
-Our approach is attacking a defensive model.
-Theta, Theta and Theta.
-This could guarantee all genes of Theta are independently inherited from fathers.
-From the view of defense, it would be interesting to find the weakness of the deployed models using our method, and then fix the vulnerability to enhance the model robustness.
-The best solutions for all particle positions  are also updated according to the fitness evolution matrix.
-As the primary group of machine learnings, Deep neural networks  are immense popular in regression tasks and classification tasks of emerging intelligent systems, especially for image processing systems.
-Theta is calculated by the following equation.
-Mean Convolution Standard Deviation : the smoothness of a adversarial image.
-Then  we define an area Theta  named convex space around Theta in high-dimension space, it satisfies equation.
-We expect to initiate the perturbations of all solutions to fill the searching space uniformly.
-ASR, MQ and AQ comparisons on different Theta norm.
-Let Theta, searching with multi-granularity in the direction of Theta can help to find the optimal solution.
-With the purpose of preventing the disappearance of elite solutions and ensuring the non-decrease of the fitness function, the solutions with high fitness values are generally expected to be kept in the next generation.
-We use Theta and Theta to denote the set of elite solutions and the set of inferior solutions in the Theta-th generation, respectively.
-Finally, Section VI concludes the paper with future work.
-AT is expensive to obtain holistic AEs and cannot guarantee its effectiveness facing emerging AEs, especially black-box generated AEs.
-This section introduces the preliminaries.
-Normalized Euclidean Distance : the difference between the original images and the adversarial images.
-First, the number of discrete perturbations, Theta, needs to be refined.
-Note that, each element of the matrix chromosome Theta can change independently.
-Mlp-mixer is a traditional neural network, which consists of an input layer, several hidden layers and an output layer.
-This paper will focus on dealing with IT-based detection and defense within MLaaS.
-Besides the objective of attack effectiveness, we need to evaluate the attack coverage ratio of the proposed black-box attack method.
-ASR, MQ and AQ comparisons on different nerual network architectures.
-As a flexible searching framework, GA can be designed to support both single-objective and multi-objective optimization problems.
-LTD and FDA are based on CIFAR100.
-DNNs are designed to learn the high-level features using layer-by-layer data processing in high-dimension space, similar to the information flow of neurons in living organisms.
-The identification and elimination strategy is applied to defend against potential adversarial example attacks.
-To sum up, removing any operator will lead to the drop of ASR in the non-defensive or defensive models, which demonstrates that each operator of GAQA plays a role in the searching process.
 Theta is the maximal fitness value for all solutions according to equation.
-Low Temperature Distillation   on CIFAR-100: using the knowledge distillation framework to generate the desired soft labels.
-To sum up, our method achieves better performance on the non-defensive models according to the experimental results of different neural network architectures, Theta norm and datasets, which demonstrates that our method is suitable for different situations.
-However, keeping certain weak solutions into the next iteration is also absolutely necessary since they also have certain superior genes in their chromosomes.
-But some white-box algorithm may have different coverage compared with black-box attack.
-Then, this paper proposes a query-efficient AE attack based on Genetic Algorithm  and Particle Swarm Optimization  to address the perturbation optimization problem.
-The Theta-th solution in Theta-th generation  with higher fitness Theta function values are more likely to be selected in the next generation Theta.
-Theta and Theta.
-In this paper, we have made efforts to generate adversarial examples for defensive DNN models deployed in the image-related intelligent systems.
-The perturbation matrix for each father solution is first split into a number of square blocks.
-The first part is related to the objective of attack effectiveness, whereas the second part focuses on the objective of attack evasiveness.
-The crossover and mutation operator are designed to increase the diversity of population while the selection operator is used to find globally better solutions Theta in the search space.
-For comparison, we valuate each operator of GAQA on the non-defensive model  and the defensive model .
-Attack Successful Ratio : the ratio of incorrect classification in the input images.
-Therefore, this operator helps GAQA to find the adversarial examples quickly.
-Given the sorted population Theta for the Theta-th iteration, the fitness value Theta of the solution Theta is the highest.
-This is because the white-box attacks have the gradient information to modify the perturbation direction whereas our method explores the direction.
-Deep Neural Networks  have been immensely deployed into artificial intelligence-driven applications , ranging from identification recognition to environment surveillance and to smart robot applications.
-Comparing with white-box attacks, they are more practical since they are assumed to be zero-knowledge of model architecture, parameters and the training data.
-In this section, we valuate the effectiveness of our method on the non-defensive models from three perspectives: neural network architecture, Theta norm and dataset.
-We assume to predict the remaining iterations when GAQA has searched for 100 iterations.
-It has the high probability to increase the fitness value if changing the perturbation of  Theta  towards the direction Theta.
-IT is devised to reduce the model sensitivity to perturbations on original images.
-This is a high-dimension coordinate system in input space.
-The ASRs of all three types have no overlap, which may be because the bigger scale datasets have the larger search spaces.
-Due to the strong randomness of the shuffle-based-crossover, shuffle-based-crossover expands the width of the search scope instead of the depth of the scope.
-Theta and model classify it into Theta, which is called positive examples.
-Compared with the black-box methods, our method has Theta increase in ASR.
-The mutation probability Theta and shuffling probability Theta also need to be updated with the predicted Theta.
-TLM  and RAT  as the victim models.
-Image compression used to reduce input space.
-Given Theta as the minimal value of attack effectiveness , the fitness function is transformed to optimize the attack evasiveness while guaranteeing the attack is effective.
-Otherwise, PSO-Jump continues the evolving procedure by updating Theta  and  Theta by Theta .
-Our method has more MQ and AQ on the large-size datasets.
-We use CIFAR-10, CIFAR-100 and ImageNet to test evaluate the effectiveness of our method on ResNet with Theta norm.
-Before the searching iteration, GAQA needs to construct the initial population.
-PSO-Jump is checked whether to be invoked by comparing Theta to the predefined threshold Theta .
-We use three dataset including CIFAR-10, CIFAR-100 and ImageNet to evaluate the effectiveness of the proposed method on defensive models and non-defensive models.
-Therefore, it is important for defenders to find  adversarial examples as much as possible.
-Theta is the perturbation bound of Theta-norm.
-Similar to GA's searching framework, GAQA is designed to iteratively evolve the perturbations on clean images, with the purpose to successfully attack the defensive victim DNN model.
-Adversarial Training , Gradient Masking  and Input Transformation  and Theta.
-We choose different neural network architectures including Mlp-mixer , Swim-transformer  and ResNet  to test the effectiveness of our method on the non-defensive models on ImageNet with Theta norm.
-Therefore, our approach has stronger searching capacity and higher ASR.
-First, GAQA takes Theta to initialize the perturbation population.
-Different to traditional GA, adversarial example-specific reproduction operators are well designed to improve search efficiency of GAQA.
-Theta is the best solution  of all solutions in the Theta-th iteration.
-Compared with the three black-box attack methods, our method has greater ASR and lower MQ.
-We have conducted to extensive experiments to evaluate the efficiency of our method.
-PSO-Jump, which takes a set of perturbation particles  as the input.
-Theta.
-However, these methods are query-intensive and computation-expensive, thus limiting their applications in real-world applications.
-A Defensive DNN model is defined as Theta, which is able to alleviate the impact of perturbed input Theta with the defensive policy Theta.
-This paper exploits a group of Theta to reproduce a batch of perturbations.
-Each solution could have the average perturbation range as Theta for Theta solutions of Theta.
-Therefore, our method has greater ASR and lower MQ on different neural network architectures.
-Adversarial example  attacks are typically launched by maliciously crafted inputs, and aim to let DNN models to misbehave.
-The objective of attack coverage could not be represented in the fitness function, since it depends on the experimental comparison with other attack methods.
-Therefore, we can conclude that the PSO-Jump of our GAQA is effective.
-In this paper, we aim to fast generate AEs via query-based black-box method to attack defensive DNNs deployed in MLaaS.
-To make AE attacks imperceptible, according to equation.
-We propose a GA-based query-efficient attack method to generate image AEs to breakthrough victim models with defensive mechanisms.
-We evaluate the effectiveness of the proposed method on defensive models and non-defensive models in Section V and Section V.
-For the evolving procedure, PSO-Jump will update the position of each particle for Theta times .
-For image classification tasks, well-designed AEs is capable of fooling DNN models with wrong predictions while being imperceptible to human naked eyes.
-First, the experimental setup is given in Section V.
-Second, ablation study is presented to demonstrate the efficiency of each step of our GAQA in Section V.
-Our method achieves a Theta increase in ASR and respectively decreases AQ and MQ by Theta and Theta compared with the three black-box methods.
-Theta is increased after the PSO-Jump process.
-Given the input image Theta having the width Theta and the height Theta, Theta the MCSD can be obtained by equation.
-We can observe that Theta will exceed the Theta according to equation.
-We chose UD , WDM , ODEs  as the victim neural networks.
-In Section III, the query-based black-box attack has been formulated as a multi-objective optimization problem, which is obviously a non-convex and discrete optimization problem.
-To obtain the fitness value , we need to sort the confidence values of Theta labels .
-The specific values of Theta and block size will be adaptively changed during each iteration, thus improving the convergence of QAGA.
-The high-quality genes from low-score chromosomes will be filtered out, whereas the high-quality genes from high-score chromosomes are mostly kept for the next searching iteration.
-Defenders  could use image compression to reduce high-dimensional data to low-dimensional data.
-Perturbation-varied reproduction is designed to generate Theta new perturbations, thus it costs Theta.
-Section V-B.
-To improve the convergence of GAQA, we choose to upgrade the reproduction-related parameters according to the predication of searching overhead.
-For the situation of failed AE , Theta is less than zero.
-Adversarial training is an useful tool to build a stronger DNN, where defenders could use attack method to generate adversarial examples and put them into training process.
-Given a set of clean  images and the attack method A, Theta is used to denote the set of AEs which successfully attack the victim model.
-Similarly, we consider to choose the solutions in elite population and inferior population to implement the shuffle-based crossover.
-Incorporating with gradient information, decision boundary-based methods are also developed, which can push the data to the decision boundary to realize misclassification of images.
-Afterwards, PSO-Jump will evaluate the fitness value Theta, and check whether it is greater than Theta .
-Theta must be limited.
-Unlabeled Data   on CIFAR-10: using unlabeled data to bridge the sample complexity gap between standard and robust classification.
-We chose Theta and Theta norm to evaluate the effectiveness of our method on CIFAR-10 with ResNet.
-The smaller NED means that the adversarial examples generated by our method are more similar to the original images.
 It indicates that our method with well-designed operators has a strong searching capacity in vast space.
-In contrast to white-box attack, block-box attack has a wider search space, because it has no knowledge of the specific distribution of the high-dimensional space around the original example.
-Similarly, the evolutions of Theta, Theta and Theta for the 4th generation can be conducted.
-Ordinary Differential equationuations   on CIFAR-10: imposing constraints to ensure that all eigenvalues of the Jacobian matrix of the neural ODE layer have negative real parts, when each classification class converges to its own equilibrium points.
-In this paper, we use GA to address the AE generation problem since it can be inherent formulated as constrained optimization problems.
+Compared with the three black-box attack methods, our method has greater ASR and lower MQ.
+GM is to force DNN models to have zero-close gradients, thus reducing the perturbation sensitivity to DNN models.
+Given the benign input Theta with the class label as Theta, the perturbed Theta is defined as an AE if misclassified to the label Theta.
+In this section, we valuate the effectiveness of our method on the non-defensive models from three perspectives: neural network architecture, Theta norm and dataset.
+In natural selection, the superior offspring may be born with elite fathers and inferior fathers.
+GAQA has achieved a Theta increase in ASR, and respectively decreased AQ and MQ by Theta and Theta, compared with the three black-box methods .
+Well Designed Model   on CIFAR-10: reducing capacity via depth or width at the deeper layers to improves adversarial robustness.
+Due to the explosive search space, it is extremely difficult to find the optimal AE to attack defensive DNN models.
+Compared with current black-box methods, GAQA can effectively generate optimal perturbations on images and significantly decrease the number of queries to the victim model.
+We expect to initiate the perturbations of all solutions to fill the searching space uniformly.
+Particle Swarm Optimization  can obtain optimized solutions in a large stochastic searching space by imitating the food-finding process of a swarm of birds .
+Minimum Attack Set : the minority attack methods set which could cover other attack methods completely.
+Our method has average Theta, Theta, Theta, Theta and Theta reduction in NED, respectively, compared with APGD-CE, ZOO, Square, DeepFool and GenAttack.
+Comparing with white-box attacks, they are more practical since they are assumed to be zero-knowledge of model architecture, parameters and the training data.
+Unlabeled Data   on CIFAR-10: using unlabeled data to bridge the sample complexity gap between standard and robust classification.
+Since GAQA can generate better adversarial examples according to equation.
+Adversarial Training , Gradient Masking  and Input Transformation  and Theta.
+We evaluate the effectiveness of the proposed method on defensive models and non-defensive models in Section V and Section V.
+The three black-box attack methods  and our method have higher MQ and AQ, since they need to estimate the evolution direction through the query model.
+To implement white-box attacks, the adversarial attackers are assumed to know the full knowledge of model architecture, model parameters and training data of the victim DNN models.
+In this section, we conduct the ablation experiments to test the effectiveness of our method.
+GAQA can reduce Theta, Theta, Theta, Theta and Theta in NED, respectively, compared with APGD-CE, ZOO, Square, DeepFool, and GenAttack in three defensive models.
+Since Theta is much less than Theta and Theta, time complexity of PSO-Jump can be obtained as Theta.
+ResNet is a widely used neural network, which contains identity short-cut connections.
+Mean Convolution Standard Deviation : the smoothness of a adversarial image.
+For simplicity, we calculate them with the same following equation.
+AT is expensive to obtain holistic AEs and cannot guarantee its effectiveness facing emerging AEs, especially black-box generated AEs.
+Deep Neural Networks  have been immensely deployed into artificial intelligence-driven applications , ranging from identification recognition to environment surveillance and to smart robot applications.
+Therefore, we can conclude that the PSO-Jump of our GAQA is effective.
+Based on the prediction of searching iterations, we introduce predication-based adaptation for reproduction-related parameters to speed up the search convergence, and design PSO-based jump to avoid the search stuck at local optimum.
+Theta is the dimension of input Theta, Theta is the bound of Theta-norm to escape human perception.
+It would be good policy to produce new offspring  in the direction of perturbation-direction of input data.
+Theta and model classify it into Theta, which is called positive examples.
+In Stage , new solutions  will be generated via Reproduction operators including Perturbation-varied reproduction, Block-based crossover, and Shuffle-based crossover.
+Theta is designed to decrease with the increase of Theta to guarantee the high probability to select elite solutions, as shown in equation.
+Average Queries : the average query times in the three experiments.
+In addition, most of existing AE attacks including both white-box and black-box methods ignore to generate AEs for defensive DNNs in the scenarios of MLaaS.
 The compression phase Theta will compress an input image.
 In case of non-defensive models, our method can successfully attack state-of-the-art network architectures including Mlp-mixper and Swim-Transformer.
-More specific, this paper aims to deploy a query-based gradient-free black-box attack on MLaaS, which can adaptively upgrade the attack strength of adversarial inputs according to the returned confidence values of all classes.
-The average MCSD of GAQA is Theta, Theta, Theta, Theta and Theta	of those of APGD-CE, ZOO, Square, DeepFool, and GenAttack, respectively.
+GAQA has more queries than the two white-box methods .
+Similarly, we consider to choose the solutions in elite population and inferior population to implement the shuffle-based crossover.
 We can conclude that our GAQA is suitable to check the robustness of neural networks.
-To deceive the perception of human eyes, each element of the perturbation has the bound of Theta.
-However, due to the weak interpretability, DNNs has the inherent vulnerability to Adversarial Example  attacks  .
-Theta is decreasing with the growing of Theta.
-Swim-transformer is a new neural network based on the NLP transformer.
-We assume the distance between any two consecutive perturbations are the same.
-Particle Swarm Optimization  can obtain optimized solutions in a large stochastic searching space by imitating the food-finding process of a swarm of birds .
-Adaptive mutation is designed to improve the diversity of the perturbations in Stage .
-Therefore, we only need to optimize the second part to find perturbations with high attack evasiveness.
-On the contrary, black-box attacks are assumed to be zero-knowledge of architecture, parameters or any other settings of targeted DNN models.
-Some existing attacks  consider to restart the searching by dropping all the perturbations, which is waste of the searching efforts.
-Illustration of PSO-based perturbations evolution.
-Some white-box attacks only search at one convex space which contains Theta.
-Well Designed Model   on CIFAR-10: reducing capacity via depth or width at the deeper layers to improves adversarial robustness.
-First, the solutions in the current generations are sorted by the decrease order of their fitness values.
+In this section, extensive experiments are conducted to evaluate the effectiveness of the proposed GAQA attacks son DNN models.
+The specific values of Theta and block size will be adaptively changed during each iteration, thus improving the convergence of QAGA.
+Our approach is attacking a defensive model.
+After that, GAQA will conduct the superiority-related probabilistic selection on the current perturbation solutions , wherein the inferior solutions will be deleted from the current generation .
+However, keeping certain weak solutions into the next iteration is also absolutely necessary since they also have certain superior genes in their chromosomes.
+Since the non-defensive models have many weaknesses, attack methods have fewer queries compared with attacking the defensive models.
+First, the number of discrete perturbations, Theta, needs to be refined.
+To sum up, our method achieves good performance on the defensive models according to the experimental results on CIFAR-10, CIFAR-100 and ImageNet.
+Following that, BIM   is further designed to generate better AEs by iteratively using FGSM.
+It may be because that Genattack has no jump operator and adaptive process.
+Along with the fast development of AE attacks, the robustness of DNNs has received increasing concerns.
+The two white-box attack methods  and our method can achieve Theta ASR.
+Although white-box attacks have been evaluated successful, they cannot achieve high attack performance in practical applications where the information of victim models and training data are definitely not disclosed to the adversarial attackers.
+Due to the inherent characteristics of gradient-free and adaptive query, we only need to deal with detection-based defensive mechanisms based on input transformation while ignoring the defensive mechanisms of adversarial training and gradient masking.
+PSO-Jump is checked whether to be invoked by comparing Theta to the predefined threshold Theta .
+PSO for our AE search problem.
+It has the high probability to increase the fitness value if changing the perturbation of  Theta  towards the direction Theta.
+For the evolving procedure, PSO-Jump will update the position of each particle for Theta times .
 From another point of view, defenders could reduce the decentered neighborhood.
-Inspired by Genetic Algorithm , one of the most flexible and efficient searching evolution algorithm, in this section we propose GA-based Query-efficient Attack  to search for the best adversarial examples, in which AE-specific components are designed to speed up the evolution procedure and PSO-based jumping is incorporated to avoid local optimal solutions.
-The values of  Theta and Theta will increase with the number of Theta growing.
-In other words, the predicted Theta depends on the so-far optimal fitness and the number of iterations.
-Another way to defend against attack is to construct a robust model .
-Since GAQA can generate better adversarial examples according to equation.
-As one popular method, Genetic Algorithm  is popular to search optimal solutions for constrained optimization problems.
-In addition, most of existing AE attacks including both white-box and black-box methods ignore to generate AEs for defensive DNNs in the scenarios of MLaaS.
-Due to the explosive search space, it is extremely difficult to find the optimal AE to attack defensive DNN models.
-Moreover, removing the initialize-population will increase MQ by Theta with a Theta drop in ASR.
-We choose Mlp-mixer , Swim-transformer  and ResNet  as the non-defensive models.
-Similar to card shuffling in card-play games, we randomly select the genes from their fathers to generate new solutions.
-However, it is not suitable for the search framework of GAQA, because we always expect to keep the perturbations better fitness values even with mutation operations.
-The quality of population members is evaluated by a fitness function.
-Genattack has the smallest CR among the six attack methods, which may be because it has no adaptive function and well-designed reproduction process.
-When applying mutation on the set of perturbations, it will result in certain high-quality genes and inferior genes.
-As the future work, it is worthy of doing the following researches.
-Theta indicates the standard deviation of Theta and its eight adjacent points.
-When the estimated steps exceed the threshold, the iterative process of PSO will be performed.
-To make the attack more practical, we exploit query-based black-box method to generate image AEs.
+Incorporating with gradient information, decision boundary-based methods are also developed, which can push the data to the decision boundary to realize misclassification of images.
+Given Theta as the minimal value of attack effectiveness , the fitness function is transformed to optimize the attack evasiveness while guaranteeing the attack is effective.
+Theta determine the granularity of perturbation discretization, and it will be adaptively changed in the search iteration.
+The newly generated solution Theta in Theta-th iteration is related to the solution Theta and its moving speed , which is formally expressed by equation.
+ASR, MQ and AQ comparisons on different datasets.
+Based on the predicted Theta, Theta can be calculated by the following equation.
+Compared with the black-box methods, our method has Theta increase in ASR.
+First, the experimental setup is given in Section V.
+PSO is designed to an iterative searching algorithm by imitating the food-finding process of a flock of birds.
+More specific, this paper aims to deploy a query-based gradient-free black-box attack on MLaaS, which can adaptively upgrade the attack strength of adversarial inputs according to the returned confidence values of all classes.
+UD, WDM and ODEs are based on CIFAR10.
+On the contrary, black-box attacks are assumed to be zero-knowledge of architecture, parameters or any other settings of targeted DNN models.
 Since feature-squeezing and image-compress are two most widely used input transformation policies, we must try our best to guarantee the generated AEs can stealthy pass the corresponding process.
-In natural selection, the superior offspring may be born with elite fathers and inferior fathers.
-Black-box AE attacks are also seriously threatened to DNNs .
-It is of critical importance to construct the initial population Theta with the purpose of improving the search efficiency.
-Fixing Data Augmentation   on CIFAR-100: using generated examples to provide a greater diversity of augmentations that help enhance the image manifolds and allow adversarial training.
+As a flexible searching framework, GA can be designed to support both single-objective and multi-objective optimization problems.
+IT is devised to reduce the model sensitivity to perturbations on original images.
+Although Genattack is a genetic algorithm, it has poor performance.
+Assume that the defenders know the model structure and can deconstruct the DNN model to get the weight parameters.
+TLM  and RAT  as the victim models.
 The query operation of the victim model can be defined as the function Theta, within which Theta returns the confidence of recognizing input Theta as class label Theta.
-To facilitate the attack in practice, we presented a query-efficient black-box method, named GAQA, to generate adversarial examples.
-Considering the linear characteristics of DNNs, FGSM  is proposed to generate AEs using on-step gradient updation on image pixels.
-Sort Theta by the decrease order of fitness.
+The DNN model Theta is trained based on the training data set with Theta labeled inputs Theta, where Theta is an input instance and Theta is its ground-truth class label.
+Note that, each element of the matrix chromosome Theta can change independently.
+Median Queries :  the median query times in the three experiments.
+Swim-transformer is a new neural network based on the NLP transformer.
+For the situation of failed AE , Theta is less than zero.
+Inspired by Genetic Algorithm , one of the most flexible and efficient searching evolution algorithm, in this section we propose GA-based Query-efficient Attack  to search for the best adversarial examples, in which AE-specific components are designed to speed up the evolution procedure and PSO-based jumping is incorporated to avoid local optimal solutions.
+Initiate the perturbation solutions Theta via equation.
+Adversarial training is an useful tool to build a stronger DNN, where defenders could use attack method to generate adversarial examples and put them into training process.
+Then, this paper proposes a query-efficient AE attack based on Genetic Algorithm  and Particle Swarm Optimization  to address the perturbation optimization problem.
+To sum up, our method achieves better performance on the non-defensive models according to the experimental results of different neural network architectures, Theta norm and datasets, which demonstrates that our method is suitable for different situations.
+Theta represents the existing attack methods.
+Attack Successful Ratio : the ratio of incorrect classification in the input images.
+To sum up, removing any operator will lead to the drop of ASR in the non-defensive or defensive models, which demonstrates that each operator of GAQA plays a role in the searching process.
+Theta is the best solution  of all solutions in the Theta-th iteration.
+GAQA initializes the perturbation population and search-related parameters .
+This is a high-dimension coordinate system in input space.
+Let Theta, searching with multi-granularity in the direction of Theta can help to find the optimal solution.
+In other words, the requirement satisfied adversarial example can not be generated even with high time overhead.
+Some white-box attacks only search at one convex space which contains Theta.
+The experiment indicates that genetic algorithm has a strong searching capacity.
 According to the procedure of GAQA, the time overhead consists of eight parts during the GA search framework.
+Defenders  could use image compression to reduce high-dimensional data to low-dimensional data.
+The better Theta of offspring will be remained after superiority-driven probabilistic selection.
+PSO address the optimization problem by simultaneously moving the particles in the searching space based on the corresponding fitness values.
+In Section V, extensive experiments are conducted to evaluate the performance of proposed method.
+Jumping process  will further used to generate non-local optimal solutions when the number of iterations reaches at the predefined threshold Theta.
+Image compression used to reduce input space.
+Given the sorted population Theta for the Theta-th iteration, the fitness value Theta of the solution Theta is the highest.
+Theta must be limited.
+We assume the distance between any two consecutive perturbations are the same.
+Theta is decreasing with the growing of Theta.
+Given the input image Theta having the width Theta and the height Theta, Theta the MCSD can be obtained by equation.
+To deceive the perception of human eyes, each element of the perturbation has the bound of Theta.
+Given a clean image, the corresponding AE depends on the perturbation on each pixel of the image.
+The best solutions for all particle positions  are also updated according to the fitness evolution matrix.
+First, GAQA takes Theta to initialize the perturbation population.
+The average MCSD of GAQA is Theta, Theta, Theta, Theta and Theta of those of APGD-CE, ZOO, Square, DeepFool, and GenAttack, which means that our GAQA has a great evasiveness on the big-scale datasets.
 Specifically,  Theta can be calculated according to equation.
-GM is to force DNN models to have zero-close gradients, thus reducing the perturbation sensitivity to DNN models.
+For instance, the produce of Theta depends on the solution Theta in the position Theta of 3rd generation and the speed Theta according to equation.
+In contrast to white-box attack, black-box attack has a wider search space because it has no knowledge of the specific distribution of the high-dimensional space.
+This paper exploits a group of Theta to reproduce a batch of perturbations.
+Besides the objective of attack effectiveness, we need to evaluate the attack coverage ratio of the proposed black-box attack method.
+APGD-CE and DeepFool are white-box attack methods while ZOO, Square-Attack and GenAttack are black-box attack methods.
+Then  we define an area Theta  named convex space around Theta in high-dimension space, it satisfies equation.
+The values of  Theta and Theta will increase with the number of Theta growing.
+In Section III, the query-based black-box attack has been formulated as a multi-objective optimization problem, which is obviously a non-convex and discrete optimization problem.
+Low Temperature Distillation   on CIFAR-100: using the knowledge distillation framework to generate the desired soft labels.
+Similar to GA's searching framework, GAQA is designed to iteratively evolve the perturbations on clean images, with the purpose to successfully attack the defensive victim DNN model.
+To guide the searching direction of GAQA, a fitness function should be designed to evaluate the quality of each solution.
+Different to traditional GA, adversarial example-specific reproduction operators are well designed to improve search efficiency of GAQA.
+Specifically, the calculation of Theta can be referred to equation.
+With the purpose of preventing the disappearance of elite solutions and ensuring the non-decrease of the fitness function, the solutions with high fitness values are generally expected to be kept in the next generation.
+Therefore, this operator helps GAQA to find the adversarial examples quickly.
+Note that PSO-Jump is described in the following paragraph.
+Theta is increased after the PSO-Jump process.
+LTD and FDA are based on CIFAR100.
+However, the research to generate AEs using evolutionary algorithms is seriously overlooked for defensive DNNs.
+Theta is the perturbation bound of Theta-norm.
+PSO-Jump finally will return the updated perturbations Theta to GAQA for GA-based evolution .
+As one popular method, Genetic Algorithm  is popular to search optimal solutions for constrained optimization problems.
+The crossover and mutation operator are designed to increase the diversity of population while the selection operator is used to find globally better solutions Theta in the search space.
+GM is also cost-expensive and not suitable for black-box attacks.
+Similarly, the evolutions of Theta, Theta and Theta for the 4th generation can be conducted.
+APGD-CE , ZOO , Square-Attack , DeepFool , GenAttack .
+ASR.
+The Theta-th solution in Theta-th generation  with higher fitness Theta function values are more likely to be selected in the next generation Theta.
+Therefore, GAQA has a better attack capacity even in a poor start position, but it will take more steps to achieve the same performance.
+ASR, MQ and AQ comparisons on different nerual network architectures.
+This could guarantee all genes of Theta are independently inherited from fathers.
+However, our GAQA has fewer queries compared with the three black-box attack methods.
+Fixing Data Augmentation   on CIFAR-100: using generated examples to provide a greater diversity of augmentations that help enhance the image manifolds and allow adversarial training.
+In this paper, we use GA to address the AE generation problem since it can be inherent formulated as constrained optimization problems.
+In other words, the objective of attack evasiveness needs to be improved only if the AE attack is effective.
+Section V-B.
+Before the searching iteration, GAQA needs to construct the initial population.
+As a prominent branch of AE attacks, a great number of white-box attacks have been developed .
+Then PSO-Jump calculates the perturbation of Theta according to  Theta and Theta  .
+Based on the evolution matrix for the first three generations, the solutions of 4th generation can be produced.
+However, these methods are query-intensive and computation-expensive, thus limiting their applications in real-world applications.
+Another way to defend against attack is to construct a robust model .
+Mlp-mixer is a traditional neural network, which consists of an input layer, several hidden layers and an output layer.
+To obtain the fitness value , we need to sort the confidence values of Theta labels .
+In general, evolutionary operators of selection, crossover and mutation are utilized to breed the next-generation population.
+For image classification tasks, well-designed AEs is capable of fooling DNN models with wrong predictions while being imperceptible to human naked eyes.
+The effectiveness of attack methods is evaluated by seven metrics.
+Each solution could have the average perturbation range as Theta for Theta solutions of Theta.
+Theta indicates the standard deviation of Theta and its eight adjacent points.
+Section presents the threat model and formulate the design to a multi-objective optimization problem.
+In Section IV, the detailed design of query-efficient GA attack is given.
+To make AE attacks imperceptible, according to equation.
+Some existing attacks  consider to restart the searching by dropping all the perturbations, which is waste of the searching efforts.
+Therefore, we only need to optimize the second part to find perturbations with high attack evasiveness.
+The six attack methods can be divided into three types: GAQA, Genattack and others.
+Revisiting Adversarial Training   on ImageNet: using a weaker and cheaper adversary by FGSM to train a defensive model with higher robust accuracy.
+We define Theta as mean convolution standard deviation to evaluate the high frequency signals of AE, which calculates the standard deviation of a pixel point and its eight adjacent points.
+FL and RAT are based on ImageNet.
+This is reasonable since white-box attacks need to know the detail information of model architecture, model parameters and training data of the victim DNN models.
+Genattack has the smallest CR among the six attack methods, which may be because it has no adaptive function and well-designed reproduction process.
+This paper will focus on dealing with IT-based detection and defense within MLaaS.
+With the purpose of alleviating the vulnerability to AE attacks, certain mechanisms are emerging to improve the defensive performance of DNNs including AE detection and recognition , adversarial training of DNNs  and image compression  in the image domain.
+The original training dataset is unknown to defenders, meaning that the defense strategy cannot be designed from the perceptive of the dataset.
+The average MCSD of GAQA is  Theta, Theta, Theta, Theta and Theta of those of APGD-CE, ZOO, Square, DeepFool, and GenAttack, respectively.
+Moreover, removing the initialize-population will increase MQ by Theta with a Theta drop in ASR.
+Theta decrease in the number of queries.
+For any point Theta, it satisfies equation.
+Less MCSD means that our adversarial examples have less high frequency signals, which makes our method unlikely to be detected by identification modules or cleared by the compression modules.
+Theta is the best solution  of the Theta-indexed solutions for the first Theta iterations.
+For example, given Theta as Theta, the expected number of chosen chromosomes can be calculated to be Theta for the population with Theta solutions.
+Afterwards, PSO-Jump will evaluate the fitness value Theta, and check whether it is greater than Theta .
+Update adaptive parameters Theta, Theta, Theta via equation.
+CR results on the two defensive models.
+Defenders  usually use white-box attack methods to generate adversarial examples because they have access to the parameters and structure of their model.
+The mutation probability Theta and shuffling probability Theta also need to be updated with the predicted Theta.
+The smaller NED means that the adversarial examples generated by our method are more similar to the original images.
+Theta and Theta.
+Our method achieves a Theta increase in ASR and respectively decreases AQ and MQ by Theta and Theta compared with the three black-box methods.
+We chose UD , WDM , ODEs  as the victim neural networks.
+During the searching iteration, the parameters related reproduction operators need to be updated.
+Training high-dimensional data require larger models.
+We choose Mlp-mixer , Swim-transformer  and ResNet  as the non-defensive models.
+We start our experiments on the CIFAR-10 dataset with Theta norm.
+A Defensive DNN model is defined as Theta, which is able to alleviate the impact of perturbed input Theta with the defensive policy Theta.
+Theta.
+In addition, we use the 0-1 matrix Theta to represent the gene-shuffling selection of each selected father chromosome, where each element Theta of Theta  is set to 1 with the probability of Theta.
+Our method has average Theta, Theta, Theta, Theta and Theta reduction in NED, respectively, compared with APGD-CE, ZOO, Square, DeepFool, and GenAttack.
+Considering a complex DNN Theta  with numerous parameters, it has a powerful  ability to fit the input signal.
+Theta, Theta or Theta.
+Section II describes preliminaries work.
+However, due to the weak interpretability, DNNs has the inherent vulnerability to Adversarial Example  attacks  .
+The objective of attack coverage could not be represented in the fitness function, since it depends on the experimental comparison with other attack methods.
+PSO-Jump, which takes a set of perturbation particles  as the input.
+Therefore, our method has greater ASR and lower MQ on different neural network architectures.
+In addition to the strong ability of model prediction, we assume the victim DNN models are deployed with certain defensive protections to ensure their robust to adversarial attacks.
+PSO-Jump will terminate the PSO evolving when generating one effective AE.
+Therefore, it is important for defenders to find  adversarial examples as much as possible.
+To improve the convergence of GAQA, we choose to upgrade the reproduction-related parameters according to the predication of searching overhead.
+ASR, MQ and AQ comparisons on different Theta norm.
+The high-quality genes from low-score chromosomes will be filtered out, whereas the high-quality genes from high-score chromosomes are mostly kept for the next searching iteration.
+We use CIFAR-10, CIFAR-100 and ImageNet to test evaluate the effectiveness of our method on ResNet with Theta norm.
+Due to the bigger search space of the large-size images, our method needs more queries to estimate the evolving direction.
+Normalized Euclidean Distance : the difference between the original images and the adversarial images.
+To facilitate the attack in practice, we presented a query-efficient black-box method, named GAQA, to generate adversarial examples.
+Adaptive mutation is designed to improve the diversity of the perturbations in Stage .
+We have conducted to extensive experiments to evaluate the efficiency of our method.
+But some white-box algorithm may have different coverage compared with black-box attack.
+We choose different neural network architectures including Mlp-mixer , Swim-transformer  and ResNet  to test the effectiveness of our method on the non-defensive models on ImageNet with Theta norm.
+Given a set of clean  images and the attack method A, Theta is used to denote the set of AEs which successfully attack the victim model.
+The first part is related to the objective of attack effectiveness, whereas the second part focuses on the objective of attack evasiveness.
+Due to high time overhead to find the optimal Theta for each solution Theta, we choose to search for the near-optimal Theta only for Theta in each generation, thus reducing the complexity of the query process.
+In contrast to white-box attack, block-box attack has a wider search space, because it has no knowledge of the specific distribution of the high-dimensional space around the original example.
+Adversarial example  attacks are typically launched by maliciously crafted inputs, and aim to let DNN models to misbehave.
+We chose Theta and Theta norm to evaluate the effectiveness of our method on CIFAR-10 with ResNet.
+Similar to card shuffling in card-play games, we randomly select the genes from their fathers to generate new solutions.
+Meanwhile, our approach has the same ASR with the white-box attack methods while our method has lower queries compared with other black-box attack methods.
+To improve the convergence, GAQA conducts the adaptation operation to update the reproduction-related parameters according to equations.
+This section introduces the preliminaries.
+Due to the strong randomness of the shuffle-based-crossover, shuffle-based-crossover expands the width of the search scope instead of the depth of the scope.
+Removing the PSO-Jump will increase MQ and AQ.
+Otherwise, PSO-Jump continues the evolving procedure by updating Theta  and  Theta by Theta .
+Our method has more MQ and AQ on the large-size datasets.
+DNNs are designed to learn the high-level features using layer-by-layer data processing in high-dimension space, similar to the information flow of neurons in living organisms.
+Second, ablation study is presented to demonstrate the efficiency of each step of our GAQA in Section V.
+He likes dogs.
+Benchmark-based experiments on CIFAR-10, CIFAR-100 and ImageNet-1K are conducted to evaluate the efficiency of our method in both defensive and non-defensive scenarios.
+Consequently, we define the fitness  of each perturbation solution by equation.
+We use Theta and Theta to denote the set of elite solutions and the set of inferior solutions in the Theta-th generation, respectively.
+Considering the linear characteristics of DNNs, FGSM  is proposed to generate AEs using on-step gradient updation on image pixels.
+We assume to predict the remaining iterations when GAQA has searched for 100 iterations.
+The quality of population members is evaluated by a fitness function.
+In this paper, we have made efforts to generate adversarial examples for defensive DNN models deployed in the image-related intelligent systems.
+When the estimated steps exceed the threshold, the iterative process of PSO will be performed.
+For comparison, we valuate each operator of GAQA on the non-defensive model  and the defensive model .
+Finally, Section VI concludes the paper with future work.
+Query stage, the adversarial examples  are feed to the victim model to get the corresponding confidence values of prediction classes.
+Adversarial example recognition relies on two networks: identification and elimination  model.
+Probabilistic selection will only take Theta time cost.
+We propose a GA-based query-efficient attack method to generate image AEs to breakthrough victim models with defensive mechanisms.
+Then, we assign a filter probability for each solution.
+Theta and Theta are limited to the number of population Theta.
+The identification and elimination strategy is applied to defend against potential adversarial example attacks.
+From the view of defense, it would be interesting to find the weakness of the deployed models using our method, and then fix the vulnerability to enhance the model robustness.
+Sort Theta by the decrease order of fitness.
+We can observe that Theta will exceed the Theta according to equation.
+Perturbation-varied reproduction is designed to generate Theta new perturbations, thus it costs Theta.
+It is of critical importance to construct the initial population Theta with the purpose of improving the search efficiency.
+First, the solutions in the current generations are sorted by the decrease order of their fitness values.
+Since this paper only considers to generate adversarial examples for images of general size, it would be a challenging work to extend our searching framework to support the generation of adversarial examples for super large images.
+When applying mutation on the set of perturbations, it will result in certain high-quality genes and inferior genes.
+According to the pseudo code of PSO-Jump, the main time overhead depends on the Theta iterations to calculate the speed Theta and the perturbation Theta for particle Theta, which takes time overhead of Theta.
+This is because the white-box attacks have the gradient information to modify the perturbation direction whereas our method explores the direction.
+Therefore, it is practical to set a threshold  for the intolerable searching iterations.
+Black-box AE attacks are also seriously threatened to DNNs .
+The average MCSD of GAQA is Theta, Theta, Theta, Theta and Theta	of those of APGD-CE, ZOO, Square, DeepFool, and GenAttack, respectively.
+Although we have introduced certain mechanisms to avoid the searching into local optimal space, there still has the possibility to fall into the local optimum after a large number of evolving iterations.
+PSO-Jump, probabilistic-selection and block-based-crossover are used to decrease the query number, leading to a performance degradation on the non-defensive models.
+Illustration of PSO-based perturbations evolution.
+We choose LTD  and FDA  as the victim neural networks.
+For the situation of successful AE attack, the value of the first part is fixed to  Theta according to the Theta operation on it.
+In this paper, we aim to fast generate AEs via query-based black-box method to attack defensive DNNs deployed in MLaaS.
+We assume Theta as the Theta-th solution in Theta-th generation and  Theta as the Theta-th solution in Theta-th generation.
+The perturbation matrix for each father solution is first split into a number of square blocks.
+We use three dataset including CIFAR-10, CIFAR-100 and ImageNet to evaluate the effectiveness of the proposed method on defensive models and non-defensive models.
+However, it is not suitable for the search framework of GAQA, because we always expect to keep the perturbations better fitness values even with mutation operations.
+The ASRs of all three types have no overlap, which may be because the bigger scale datasets have the larger search spaces.
+Theta is related to the speed Theta in 3rd generation, the best-so-far perturbation for the first particle , and the best perturbation in the 3rd generation .
+Well-designed evolutionary algorithms have been used for image generation , image classification   and neural architecture search .
+Therefore, our approach has stronger searching capacity and higher ASR.
+In this paper, we propose the elites-preferred probabilistic selection to choose solutions for the coming iterations in our GAQA.
+As a supplementary work, this paper approaches to implement black-box AE attacks on defensive DNN models deployed in servers like MLaaS.
+Ordinary Differential equationuations   on CIFAR-10: imposing constraints to ensure that all eigenvalues of the Jacobian matrix of the neural ODE layer have negative real parts, when each classification class converges to its own equilibrium points.
+With the updates of searching parameters, GAQA can adaptively work during the searching iterations and consequently quickly converge to find the near-optimal global solutions.
+Different to existing works, in this paper we are interested in the generation of AEs for DNNs with defensive mechanisms.
+As the primary group of machine learnings, Deep neural networks  are immense popular in regression tasks and classification tasks of emerging intelligent systems, especially for image processing systems.
+To make the attack more practical, we exploit query-based black-box method to generate image AEs.
+Theta is calculated by the following equation.
+GAQA is designed to pick up certain top perturbations  for reassembling operations.
+Consequently, PSO-Jump will take the time overhead of Theta.
+Theta, Theta and Theta.
+In other words, the predicted Theta depends on the so-far optimal fitness and the number of iterations.
+The adversaries have the right of accessing to DNNs, and mostly exploit back-propagation methods to obtain the gradient information of DNN models, thus generating white-box AEs to threaten the victim models.
+As the future work, it is worthy of doing the following researches.
