@@ -46,7 +46,7 @@ def handle_client(client):
     client.close()
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.bind(('localhost', 1234))
+server.bind(('0.0.0.0', 1234))
 server.listen(1)
 
 try:
