@@ -4,9 +4,7 @@ import concurrent.futures
 from tqdm import tqdm
 
 def analyze_sentence(sentence):
-    # 创建一个新的子进程来运行 link-parser
     process = subprocess.Popen(['link-parser'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-    # 通过 stdin 提供句子
     stdout, stderr = process.communicate(sentence)
     ana=""
     for i in stdout.split("\n"):
@@ -23,9 +21,10 @@ def replace_words(text):
     text = text.replace('Fig', 'figure')
     text = text.replace('\n', '')
     return text
-def replace_percentage(text):
+def replace_percentage(text):   
     # 使用正则表达式匹配 xx.xx% 或 xx%
     pattern = r'\d+(\.\d+)?%'
+    
     # 将匹配到的部分替换为 100%
     text = re.sub(pattern, '100%', text)
     return text
@@ -105,14 +104,14 @@ def handle_file(file_name):
             else:
                 wrong_number+=1
                 fail_dict[sentence]=info
-                ans+=sentence+"\n"+info[10:]+"\n"
+                ans+=sentence+"\n"+info[10:]+"\n\n"
     print("识别的句子总数:",len(sentences),"错误率:",wrong_number/len(sentences))
     with open("Ana_"+file_name+".txt", 'w') as f:  f.write(ans)
     with open('fail.pkl', 'wb') as file: pickle.dump(fail_dict, file)
     write_config(list(success_list),"success.txt")
-    
-processes = []
-for i in sys.argv[1:]:
-    handle_file(i)
-for process in processes:
-    process.join()
+if __name__=="__main__":
+    processes = []
+    for i in sys.argv[1:]:
+        handle_file(i)
+    for process in processes:
+        process.join()   
